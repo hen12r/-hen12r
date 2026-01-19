@@ -1,0 +1,8 @@
+{
+  "name": "FitPick",
+  "description": "A high-performance outfit selection app for students and young adults. Get complete, stylish outfits under 30-50€ with one click.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ]
+}
