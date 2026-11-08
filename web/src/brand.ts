@@ -1,3 +1,3 @@
 export const BRAND_NAME = 'PhotoSentry';
-/** Shown in the footer and privacy notice. Replace with a real inbox before launch. */
-export const CONTACT_EMAIL = 'contact@photosentry.example';
+/** Shown in the footer and privacy notice. Temporary: replace with a dedicated product inbox. */
+export const CONTACT_EMAIL = 'olivierishimwehenry@gmail.com';

@@ -23,5 +23,5 @@ npm run build
 ## Known limits (v0)
 
 - No rate limiting, only a honeypot field. If spam shows up, move the insert behind a server function with a captcha.
-- `CONTACT_EMAIL` in `src/brand.ts` is a placeholder; replace it with a real inbox before sharing the site.
+- `CONTACT_EMAIL` in `src/brand.ts` is the founder's personal address for now; switch it to a dedicated product inbox.
 - The example report uses fictional brands and `.example` URLs on purpose.
