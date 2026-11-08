@@ -1,20 +1,7 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+# Amazon Photo Guard (working title)
 
-# Run and deploy your AI Studio app
+A SaaS for Amazon sellers: it finds competitors who reuse a seller's Amazon product photos without permission, on Amazon and elsewhere on the web, and prepares the evidence needed to get them taken down.
 
-This contains everything you need to run your app locally.
+## Status
 
-View your app in AI Studio: https://ai.studio/apps/drive/1cM603AUEWkHC1gWemfEqjuluGVlcsFNL
-
-## Run Locally
-
-**Prerequisites:**  Node.js
-
-
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+Pre-prototype. The first step is a proof of concept that runs a seller's photos through reverse image search to check whether stolen copies can be found reliably, before building the full product.
