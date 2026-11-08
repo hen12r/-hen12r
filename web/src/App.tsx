@@ -1,5 +1,5 @@
 import { lazy, Suspense } from 'react';
-import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import { LangProvider } from './lang';
 import Landing from './pages/Landing';
 
@@ -7,6 +7,8 @@ import Landing from './pages/Landing';
 const Login = lazy(() => import('./pages/Login'));
 const Dashboard = lazy(() => import('./pages/Dashboard'));
 const Report = lazy(() => import('./pages/Report'));
+const Privacy = lazy(() => import('./pages/Privacy'));
+const NotFound = lazy(() => import('./pages/NotFound'));
 
 export default function App() {
   return (
@@ -18,7 +20,8 @@ export default function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/app" element={<Dashboard />} />
             <Route path="/app/scans/:id" element={<Report />} />
-            <Route path="*" element={<Navigate to="/" replace />} />
+            <Route path="/privacy" element={<Privacy />} />
+            <Route path="*" element={<NotFound />} />
           </Routes>
         </Suspense>
       </BrowserRouter>

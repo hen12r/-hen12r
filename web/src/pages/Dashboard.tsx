@@ -5,6 +5,7 @@ import { useLang } from '../lang';
 import { AppShell, Spinner } from '../components/AppShell';
 import { StatusBadge } from '../components/StatusBadge';
 import { MARKETPLACES, type Marketplace } from '../lib/supabase';
+import { useTitle } from '../lib/useTitle';
 import { addProduct, deleteProduct, isDuplicate, listProducts, requestScan, type Product } from '../lib/db';
 
 const ASIN_RE = /^[A-Z0-9]{10}$/;
@@ -16,6 +17,7 @@ export default function Dashboard() {
 
 function Products({ supabase, session }: { supabase: SupabaseClient; session: Session }) {
   const { t, lang } = useLang();
+  useTitle(t.app.title);
   const [products, setProducts] = useState<Product[] | null>(null);
   const [loadError, setLoadError] = useState(false);
   const [actionError, setActionError] = useState<string | null>(null);

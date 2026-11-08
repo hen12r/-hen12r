@@ -5,6 +5,7 @@ import { useAuth } from '../lib/auth';
 import { GOOGLE_AUTH_ENABLED } from '../lib/supabase';
 import { Logo } from '../components/Sections';
 import { Spinner } from '../components/AppShell';
+import { useTitle } from '../lib/useTitle';
 
 const EMAIL_RE = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
 const inputClass = 'mt-1.5 block w-full rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-base text-ink shadow-sm outline-none focus:border-ink focus:ring-2 focus:ring-ink/20 aria-[invalid=true]:border-red-500';
@@ -12,6 +13,7 @@ const inputClass = 'mt-1.5 block w-full rounded-lg border border-slate-300 bg-wh
 export default function Login() {
   const { t, lang, toggle } = useLang();
   const auth = useAuth();
+  useTitle(t.auth.login);
   const [email, setEmail] = useState('');
   const [status, setStatus] = useState<'idle' | 'sending' | 'sent'>('idle');
   const [error, setError] = useState<string | null>(null);

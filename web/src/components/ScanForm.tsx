@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from 'react';
+import { Link } from 'react-router-dom';
 import type { Dict, Lang } from '../i18n';
 import { MARKETPLACES, submitScanRequest, type Marketplace } from '../lib/supabase';
 
@@ -125,7 +126,7 @@ export function ScanForm({ t, lang }: { t: Dict; lang: Lang }) {
                   />
                   <span>
                     {t.form.consent}{' '}
-                    <a href="#privacy" className="font-medium text-ink underline underline-offset-2">{t.form.privacyLink}</a>
+                    <Link to="/privacy" className="font-medium text-ink underline underline-offset-2">{t.form.privacyLink}</Link>
                   </span>
                 </label>
                 {errors.consent && <p id="consent-error" className="mt-1.5 text-sm text-red-600">{errors.consent}</p>}

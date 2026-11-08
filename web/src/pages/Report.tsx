@@ -5,6 +5,7 @@ import { useLang } from '../lang';
 import { AppShell, Spinner } from '../components/AppShell';
 import { StatusBadge } from '../components/StatusBadge';
 import { getReport, type ScanReport } from '../lib/db';
+import { useTitle } from '../lib/useTitle';
 
 export default function Report() {
   return <AppShell>{ctx => <ReportView supabase={ctx.supabase} />}</AppShell>;
@@ -16,6 +17,7 @@ const hostOf = (url: string) => { try { return new URL(url).hostname; } catch { 
 
 function ReportView({ supabase }: { supabase: SupabaseClient }) {
   const { t, lang } = useLang();
+  useTitle(t.report.title);
   const { id } = useParams();
   const [report, setReport] = useState<ScanReport | null | undefined>(undefined);
   const [error, setError] = useState(false);
