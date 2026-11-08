@@ -1,0 +1,13 @@
+{
+  "name": "photo-guard-poc",
+  "private": true,
+  "type": "module",
+  "description": "Proof of concept: find copies of Amazon product photos on other sites via Google Cloud Vision web detection.",
+  "scripts": {
+    "scan": "node scan.mjs",
+    "test": "node --test test/*.test.mjs"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

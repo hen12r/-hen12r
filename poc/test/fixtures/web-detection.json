@@ -1,0 +1,46 @@
+{
+  "webEntities": [{ "entityId": "/m/0abc", "score": 0.8, "description": "Water bottle" }],
+  "fullMatchingImages": [
+    { "url": "https://m.media-amazon.com/images/I/71own.jpg" },
+    { "url": "https://img.kwcdn.com/product/fancy/abc123.jpg" },
+    { "url": "https://ae01.alicdn.com/kf/Sxyz.jpg" }
+  ],
+  "partialMatchingImages": [
+    { "url": "https://i.ebayimg.com/images/g/abc/s-l1600.jpg" },
+    { "url": "https://cdn.shopify.com/s/files/1/0001/products/bottle.jpg" }
+  ],
+  "pagesWithMatchingImages": [
+    {
+      "url": "https://www.amazon.fr/dp/B0OWNASIN1",
+      "pageTitle": "My <b>Bottle</b> - Amazon.fr",
+      "fullMatchingImages": [{ "url": "https://m.media-amazon.com/images/I/71own.jpg" }]
+    },
+    {
+      "url": "https://www.amazon.com/Cheap-Bottle/dp/B0COPYCAT9?th=1",
+      "pageTitle": "Cheap <b>Bottle</b> knockoff",
+      "fullMatchingImages": [{ "url": "https://m.media-amazon.com/images/I/81copy.jpg" }]
+    },
+    {
+      "url": "https://www.temu.com/fr/bottle-g-601099512345.html",
+      "pageTitle": "Insulated bottle | Temu",
+      "fullMatchingImages": [{ "url": "https://img.kwcdn.com/product/fancy/abc123.jpg" }]
+    },
+    {
+      "url": "https://www.ebay.de/itm/1234567890",
+      "pageTitle": "Trinkflasche",
+      "partialMatchingImages": [{ "url": "https://i.ebayimg.com/images/g/abc/s-l1600.jpg" }]
+    },
+    {
+      "url": "https://someblog.example.com/best-bottles-2026",
+      "pageTitle": "Best bottles of 2026",
+      "partialMatchingImages": [{ "url": "https://someblog.example.com/img/bottle.jpg" }]
+    },
+    {
+      "url": "https://shop.mybrand.com/products/bottle",
+      "pageTitle": "Official store",
+      "fullMatchingImages": [{ "url": "https://shop.mybrand.com/img/bottle.jpg" }]
+    }
+  ],
+  "visuallySimilarImages": [{ "url": "https://x.example/1.jpg" }, { "url": "https://x.example/2.jpg" }],
+  "bestGuessLabels": [{ "label": "insulated water bottle", "languageCode": "en" }]
+}
