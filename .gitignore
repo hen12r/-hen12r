@@ -25,3 +25,8 @@ dist-ssr
 
 # Scan reports (may contain competitor URLs)
 poc/out/
+
+# Landing page
+web/node_modules/
+web/dist/
+web/.env.local

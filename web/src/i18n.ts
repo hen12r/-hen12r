@@ -1,0 +1,173 @@
+export type Lang = 'fr' | 'en';
+
+const fr = {
+  nav: { how: 'Comment ça marche', example: 'Exemple', faq: 'FAQ', cta: 'Scan gratuit' },
+  hero: {
+    eyebrow: 'Pour les vendeurs Amazon',
+    title: 'Découvrez qui utilise vos photos produit.',
+    subtitle: 'PhotoSentry cherche vos photos Amazon sur Amazon, Temu, AliExpress, eBay et le reste du web, puis vous remet les preuves pour faire retirer les copies.',
+    cta: 'Demander un scan gratuit',
+    secondary: 'Voir un exemple de rapport',
+    note: 'Gratuit pendant la phase de test. Aucune carte bancaire.',
+  },
+  problem: {
+    title: 'Vos photos ont un prix. Les copieurs le savent.',
+    items: [
+      { title: 'Un shooting coûte cher', body: 'Photos studio, retouches, infographies : c’est un investissement. Les copier ne coûte qu’un clic droit.' },
+      { title: 'Une copie inspire confiance', body: 'Avec vos photos, une fiche concurrente a l’air aussi sérieuse que la vôtre, souvent moins chère.' },
+      { title: 'Vous ne le voyez pas', body: 'Les copies apparaissent sur d’autres fiches Amazon, des marketplaces étrangères ou des boutiques en ligne que vous ne visitez jamais.' },
+    ],
+  },
+  how: {
+    title: 'Comment ça marche',
+    steps: [
+      { title: 'Envoyez votre ASIN', body: 'L’identifiant de votre produit Amazon suffit. Nous récupérons ses photos.' },
+      { title: 'Nous cherchons les copies', body: 'Une recherche d’image inversée trouve les pages qui utilisent vos photos, même recadrées ou retouchées.' },
+      { title: 'Recevez votre rapport', body: 'Chaque copie avec son lien, sa plateforme et le type de copie, plus les étapes pour la faire retirer.' },
+    ],
+  },
+  example: {
+    title: 'À quoi ressemble un rapport',
+    badge: 'Exemple fictif',
+    product: 'Lampe d’ambiance LED · ASIN B0EXAMPLE1',
+    summary: '4 copies trouvées sur 3 plateformes',
+    exact: 'Copie exacte',
+    edited: 'Recadrée / retouchée',
+    disclaimer: 'Marques, liens et résultats inventés pour l’illustration.',
+  },
+  platforms: {
+    title: 'Où nous cherchons',
+    body: 'Amazon (toutes les marketplaces), Temu, AliExpress, Alibaba, eBay, Walmart, Etsy, Shein, Cdiscount, les boutiques Shopify et le reste du web.',
+    caveat: 'Honnêtement : nous trouvons les pages que les moteurs de recherche ont indexées. Une copie récente ou mal indexée peut nous échapper au premier scan.',
+  },
+  form: {
+    title: 'Demandez votre scan gratuit',
+    subtitle: 'Nous lançons le scan à la main pendant la phase de test et vous envoyons le rapport par e-mail, en général sous 48 h.',
+    email: 'E-mail',
+    emailPlaceholder: 'vous@exemple.com',
+    asin: 'ASIN de votre produit',
+    asinHelp: '10 caractères, dans « Détails du produit » sur votre fiche Amazon.',
+    marketplace: 'Marketplace',
+    consent: 'J’accepte que PhotoSentry conserve mon e-mail et mon ASIN pour réaliser ce scan et me contacter à son sujet.',
+    privacyLink: 'Confidentialité',
+    submit: 'Demander mon scan',
+    sending: 'Envoi…',
+    success: 'C’est noté ! Vous recevrez votre rapport par e-mail.',
+    another: 'Envoyer un autre ASIN',
+    errorEmail: 'Entrez une adresse e-mail valide.',
+    errorAsin: 'Un ASIN fait exactement 10 lettres ou chiffres (ex. B09NNLSTGQ).',
+    errorConsent: 'Cochez la case pour que nous puissions traiter votre demande.',
+    errorGeneric: 'L’envoi a échoué. Réessayez dans un instant.',
+  },
+  faq: {
+    title: 'Questions fréquentes',
+    items: [
+      { q: 'Est-ce légal ?', a: 'Oui. Nous comparons des images publiques, comme le ferait une recherche d’image sur Google. Nous n’accédons à aucun compte et ne contournons aucune protection.' },
+      { q: 'Que faire quand je trouve une copie ?', a: 'Si vous êtes l’auteur des photos, vous pouvez signaler une violation de droit d’auteur via le formulaire « Signaler une infraction » d’Amazon, ou contacter la plateforme concernée. Le rapport indique les liens à fournir.' },
+      { q: 'Quelles plateformes sont couvertes ?', a: 'Toutes celles que les moteurs de recherche indexent : Amazon, Temu, AliExpress, eBay, Walmart, Etsy, les boutiques Shopify, etc. La couverture de Temu et AliExpress dépend de leur indexation.' },
+      { q: 'C’est vraiment gratuit ?', a: 'Oui, pendant la phase de test. En échange, nous aimerions votre avis sur le rapport.' },
+    ],
+  },
+  footer: {
+    privacyTitle: 'Confidentialité',
+    privacy: 'Nous conservons uniquement l’e-mail, l’ASIN, la marketplace et la langue que vous envoyez, pour réaliser le scan et vous contacter à son sujet. Les données sont hébergées dans l’UE (Paris). Pour les consulter ou les faire supprimer, écrivez-nous :',
+    notAffiliated: 'PhotoSentry n’est pas affilié à Amazon. Amazon est une marque d’Amazon.com, Inc. ou de ses filiales.',
+  },
+  lang: { switchTo: 'English', label: 'Langue' },
+};
+
+export type Dict = typeof fr;
+
+const en: Dict = {
+  nav: { how: 'How it works', example: 'Example', faq: 'FAQ', cta: 'Free scan' },
+  hero: {
+    eyebrow: 'For Amazon sellers',
+    title: 'Find out who is using your product photos.',
+    subtitle: 'PhotoSentry searches for your Amazon photos on Amazon, Temu, AliExpress, eBay and the rest of the web, then hands you the evidence to get the copies taken down.',
+    cta: 'Get a free scan',
+    secondary: 'See an example report',
+    note: 'Free during the beta. No credit card.',
+  },
+  problem: {
+    title: 'Your photos cost money. Copycats know it.',
+    items: [
+      { title: 'A photo shoot is expensive', body: 'Studio shots, retouching, infographics: it’s an investment. Copying them takes one right-click.' },
+      { title: 'A copy looks trustworthy', body: 'With your photos, a competing listing looks as legitimate as yours, and it’s often cheaper.' },
+      { title: 'You don’t see it', body: 'Copies show up on other Amazon listings, foreign marketplaces and online stores you never visit.' },
+    ],
+  },
+  how: {
+    title: 'How it works',
+    steps: [
+      { title: 'Send your ASIN', body: 'Your Amazon product ID is all we need. We fetch its photos.' },
+      { title: 'We search for copies', body: 'Reverse image search finds pages using your photos, even cropped or edited.' },
+      { title: 'Get your report', body: 'Every copy with its link, platform and match type, plus the steps to get it removed.' },
+    ],
+  },
+  example: {
+    title: 'What a report looks like',
+    badge: 'Fictional example',
+    product: 'LED mood lamp · ASIN B0EXAMPLE1',
+    summary: '4 copies found on 3 platforms',
+    exact: 'Exact copy',
+    edited: 'Cropped / edited',
+    disclaimer: 'Brands, links and results are made up for illustration.',
+  },
+  platforms: {
+    title: 'Where we look',
+    body: 'Amazon (every marketplace), Temu, AliExpress, Alibaba, eBay, Walmart, Etsy, Shein, Cdiscount, Shopify stores and the rest of the web.',
+    caveat: 'To be honest: we find pages that search engines have indexed. A recent or poorly indexed copy can slip past the first scan.',
+  },
+  form: {
+    title: 'Get your free scan',
+    subtitle: 'During the beta we run each scan by hand and email you the report, usually within 48 hours.',
+    email: 'Email',
+    emailPlaceholder: 'you@example.com',
+    asin: 'Your product’s ASIN',
+    asinHelp: '10 characters, under “Product details” on your Amazon listing.',
+    marketplace: 'Marketplace',
+    consent: 'I agree that PhotoSentry stores my email and ASIN to run this scan and contact me about it.',
+    privacyLink: 'Privacy',
+    submit: 'Request my scan',
+    sending: 'Sending…',
+    success: 'Got it! Your report will arrive by email.',
+    another: 'Send another ASIN',
+    errorEmail: 'Enter a valid email address.',
+    errorAsin: 'An ASIN is exactly 10 letters or digits (e.g. B09NNLSTGQ).',
+    errorConsent: 'Tick the box so we can process your request.',
+    errorGeneric: 'Sending failed. Please try again in a moment.',
+  },
+  faq: {
+    title: 'Frequently asked questions',
+    items: [
+      { q: 'Is this legal?', a: 'Yes. We compare public images, the same way a Google image search does. We don’t access any account or bypass any protection.' },
+      { q: 'What do I do when I find a copy?', a: 'If you own the photos, you can report a copyright infringement through Amazon’s “Report Infringement” form, or contact the platform involved. The report lists the links to provide.' },
+      { q: 'Which platforms are covered?', a: 'Any that search engines index: Amazon, Temu, AliExpress, eBay, Walmart, Etsy, Shopify stores and more. Coverage of Temu and AliExpress depends on how well they’re indexed.' },
+      { q: 'Is it really free?', a: 'Yes, during the beta. In return, we’d love your feedback on the report.' },
+    ],
+  },
+  footer: {
+    privacyTitle: 'Privacy',
+    privacy: 'We only store the email, ASIN, marketplace and language you send, to run the scan and contact you about it. Data is hosted in the EU (Paris). To see it or have it deleted, email us:',
+    notAffiliated: 'PhotoSentry is not affiliated with Amazon. Amazon is a trademark of Amazon.com, Inc. or its affiliates.',
+  },
+  lang: { switchTo: 'Français', label: 'Language' },
+};
+
+export const DICTS: Record<Lang, Dict> = { fr, en };
+
+const STORAGE_KEY = 'photosentry.lang';
+
+/** Saved choice first, then the browser language, then French. */
+export function initialLang(): Lang {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved === 'fr' || saved === 'en') return saved;
+  } catch { /* storage unavailable */ }
+  const nav = typeof navigator !== 'undefined' ? navigator.language.toLowerCase() : 'fr';
+  return nav.startsWith('fr') ? 'fr' : 'en';
+}
+
+export function saveLang(lang: Lang) {
+  try { localStorage.setItem(STORAGE_KEY, lang); } catch { /* storage unavailable */ }
+}
