@@ -41,3 +41,11 @@ npm test   # offline tests against a recorded-shape Vision response
 - Scraping those platforms directly is against their terms and is not done here.
 - Copies on Amazon are found only if Google indexed the copycat's listing. The reliable route for Amazon is the Selling Partner API, which needs Amazon's approval.
 - Cost: Vision bills per image (check current Google Cloud pricing). Each photo is one request.
+
+## Publish results to a seller's account
+
+```bash
+node to-sql.mjs out/report.json --scan <scan uuid> [--image 0]
+```
+
+Prints one transaction that replaces the scan's findings and marks it `done` (or `failed` with the error). Run it as the database admin in the Supabase SQL editor. Values are SQL-escaped and the scan id must be a UUID.

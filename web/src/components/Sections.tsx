@@ -1,9 +1,10 @@
+import { Link } from 'react-router-dom';
 import { BRAND_NAME, CONTACT_EMAIL } from '../brand';
 import type { Dict, Lang } from '../i18n';
 
-const container = 'mx-auto w-full max-w-6xl px-4 sm:px-6';
+export const container = 'mx-auto w-full max-w-6xl px-4 sm:px-6';
 
-function Logo() {
+export function Logo() {
   return (
     <span className="flex items-center gap-2 font-extrabold tracking-tight text-ink">
       <svg viewBox="0 0 32 32" className="h-7 w-7" aria-hidden="true">
@@ -14,6 +15,15 @@ function Logo() {
       {BRAND_NAME}
     </span>
   );
+}
+
+/** Cheap check for a stored Supabase session, without loading supabase-js on the landing page. */
+function hasSession(): boolean {
+  try {
+    return Object.keys(localStorage).some(k => k.startsWith('sb-') && k.endsWith('-auth-token'));
+  } catch {
+    return false;
+  }
 }
 
 export function Header({ t, lang, onToggleLang }: { t: Dict; lang: Lang; onToggleLang: () => void }) {
@@ -35,7 +45,10 @@ export function Header({ t, lang, onToggleLang }: { t: Dict; lang: Lang; onToggl
           >
             {lang === 'fr' ? 'EN' : 'FR'}
           </button>
-          <a href="#scan" className="rounded-md bg-ink px-3.5 py-2 text-sm font-semibold text-white hover:bg-slate-800">
+          <Link to={hasSession() ? '/app' : '/login'} className="rounded-md px-2.5 py-1.5 text-sm font-semibold text-slate-600 hover:bg-slate-100 hover:text-ink">
+            {hasSession() ? t.auth.account : t.auth.login}
+          </Link>
+          <a href="#scan" className="hidden rounded-md bg-ink px-3.5 py-2 text-sm font-semibold text-white hover:bg-slate-800 sm:inline-block">
             {t.nav.cta}
           </a>
         </div>
