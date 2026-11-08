@@ -1,4 +1,3 @@
-
 import { createClient } from '@supabase/supabase-js';
 import { Outfit, User } from '../types';
 
@@ -127,14 +126,5 @@ export const supabaseService = {
       console.error('Unexpected error fetching outfits:', e);
       return [];
     }
-  },
-
-  async upsertOutfit(outfit: Outfit) {
-    const { data, error } = await supabase
-      .from('outfits')
-      .upsert(outfit)
-      .select();
-    if (error) throw error;
-    return data;
   }
 };
