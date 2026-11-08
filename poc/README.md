@@ -13,6 +13,14 @@ export GOOGLE_VISION_API_KEY=...   # Google Cloud project with the Vision API en
 node scan.mjs photos/ --own-asin B0XXXXXXXX --own-domain mybrand.com
 ```
 
+Or scan a product list where each image excludes only its own listing (so copies between products on the list are still reported):
+
+```bash
+node scan.mjs --products products/first-scan-fr.txt --out out
+```
+
+The list format is one `ASIN | label | image URL` per line; `#` starts a comment.
+
 - Inputs: image files, folders of images, or image URLs (e.g. `https://m.media-amazon.com/images/I/....jpg`).
 - `--own-asin` / `--own-domain` (repeatable): the seller's own listings, so they aren't reported as copies.
 - `--out dir` (default `out/`): where `report.html` and `report.json` go.

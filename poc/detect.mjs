@@ -49,6 +49,9 @@ export function findCopies(web, own = {}) {
     if (!url) return false;
     const asin = asinOf(url);
     if (asin && ownAsins.has(asin)) return true;
+    // Also catch other URL shapes that carry the ASIN (e.g. ?asin=..., /product-reviews/ASIN).
+    const upper = url.toUpperCase();
+    for (const a of ownAsins) if (upper.includes(a)) return true;
     try {
       const host = new URL(url).hostname.toLowerCase();
       return ownDomains.some(d => host === d || host.endsWith(`.${d}`));

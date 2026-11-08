@@ -119,3 +119,12 @@ test('report summarizes by platform and escapes HTML', () => {
   assert.ok(!html.includes('<script>x</script>'));
   assert.ok(html.includes('&lt;script&gt;'));
 });
+
+test('findCopies treats any URL containing the own ASIN as own', () => {
+  const web = { pagesWithMatchingImages: [
+    { url: 'https://www.amazon.fr/product-reviews/B09NNLSTGQ/', fullMatchingImages: [{ url: 'https://m.media-amazon.com/a.jpg' }] },
+    { url: 'https://www.amazon.fr/dp/B0FHK5WNVZ', fullMatchingImages: [{ url: 'https://m.media-amazon.com/b.jpg' }] },
+  ] };
+  const { findings } = findCopies(web, { asins: ['B09NNLSTGQ'] });
+  assert.deepEqual(findings.map(f => f.asin), ['B0FHK5WNVZ']);
+});
