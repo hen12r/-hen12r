@@ -5,6 +5,7 @@ import { useAuth } from '../lib/auth';
 import { GOOGLE_AUTH_ENABLED } from '../lib/supabase';
 import { Logo } from '../components/Sections';
 import { Spinner } from '../components/AppShell';
+import { Icon } from '../components/Icon';
 import { useTitle } from '../lib/useTitle';
 
 const EMAIL_RE = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
@@ -46,7 +47,24 @@ export default function Login() {
   };
 
   return (
-    <div className="flex min-h-screen flex-col bg-slate-50">
+    <div className="grid min-h-screen bg-white lg:grid-cols-2">
+      <aside className="relative hidden overflow-hidden bg-ink p-12 text-white lg:flex lg:flex-col lg:justify-between">
+        <div className="absolute -right-24 -top-24 h-96 w-96 rounded-full bg-amber-500/15 blur-3xl" aria-hidden="true" />
+        <Link to="/" className="relative" aria-label="PhotoSentry"><Logo inverted /></Link>
+        <div className="relative max-w-md">
+          <h2 className="text-4xl font-extrabold tracking-tight text-balance">{t.ui.loginPanelTitle}</h2>
+          <ul className="mt-8 space-y-4 text-slate-300">
+            {t.ui.loginPanelPoints.map(point => (
+              <li key={point} className="flex items-center gap-3">
+                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-white/10 text-signal"><Icon name="check" className="h-4 w-4" /></span>
+                {point}
+              </li>
+            ))}
+          </ul>
+        </div>
+        <p className="relative text-xs text-slate-500">{t.footer.notAffiliated}</p>
+      </aside>
+      <div className="flex min-h-screen flex-col bg-slate-50 lg:bg-white">
       <div className="flex items-center justify-between px-4 py-4 sm:px-6">
         <Link to="/" className="text-sm font-medium text-slate-600 hover:text-ink">{t.auth.back}</Link>
         <button type="button" onClick={toggle} aria-label={`${t.lang.label}: ${t.lang.switchTo}`}
@@ -55,9 +73,9 @@ export default function Login() {
         </button>
       </div>
       <main className="flex flex-1 items-start justify-center px-4 pb-16 pt-6 sm:pt-16">
-        <div className="w-full max-w-md rounded-xl bg-white p-6 shadow-sm ring-1 ring-slate-200 sm:p-8">
-          <Logo />
-          <h1 className="mt-6 text-2xl font-bold tracking-tight">{t.auth.title}</h1>
+        <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200 sm:p-8 lg:shadow-none lg:ring-0">
+          <div className="lg:hidden"><Logo /></div>
+          <h1 className="mt-6 text-2xl font-bold tracking-tight lg:mt-0 lg:text-3xl">{t.auth.title}</h1>
           <p className="mt-2 text-slate-600">{t.auth.subtitle}</p>
 
           {auth.status === 'loading' && <Spinner label={t.app.loading} />}
@@ -110,6 +128,7 @@ export default function Login() {
           )}
         </div>
       </main>
+      </div>
     </div>
   );
 }
