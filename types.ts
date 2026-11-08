@@ -70,7 +70,6 @@ export interface Outfit {
 export type AppStep = 
   | 'welcome' 
   | 'auth' 
-  | 'onboarding' 
   | 'discovery' 
   | 'gender' 
   | 'occasion' 
@@ -79,12 +78,8 @@ export type AppStep =
   | 'budget' 
   | 'results' 
   | 'details' 
-  | 'ai-mentor' 
   | 'virtual-mirror' 
-  | 'subscription' 
   | 'profile' 
   | 'paywall' 
-  | 'admin' 
-  | 'monthly-preview' 
   | 'visual-scan'
   | 'how-it-works';
