@@ -39,6 +39,7 @@ export function Header({ t, lang, onToggleLang }: { t: Dict; lang: Lang; onToggl
           <a href="/#how" className="hover:text-ink">{t.nav.how}</a>
           <a href="/#example" className="hover:text-ink">{t.nav.example}</a>
           <a href="/#faq" className="hover:text-ink">{t.nav.faq}</a>
+          <Link to="/pricing" className="hover:text-ink">{t.nav.pricing}</Link>
         </nav>
         <div className="flex items-center gap-1 sm:gap-2">
           <button
@@ -292,6 +293,7 @@ export function Footer({ t }: { t: Dict }) {
             <li><a href="/#how" className={linkClass}>{t.nav.how}</a></li>
             <li><a href="/#example" className={linkClass}>{t.nav.example}</a></li>
             <li><a href="/#faq" className={linkClass}>{t.nav.faq}</a></li>
+            <li><Link to="/pricing" className={linkClass}>{t.nav.pricing}</Link></li>
             <li><a href="/#scan" className={linkClass}>{t.nav.cta}</a></li>
           </ul>
         </div>

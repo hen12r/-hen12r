@@ -97,3 +97,32 @@ export async function getReport(supabase: SupabaseClient, scanId: string): Promi
 
 /** Postgres error codes surfaced to the UI. */
 export const isDuplicate = (e: unknown) => (e as { code?: string } | null)?.code === '23505';
+
+export interface Subscription {
+  plan: 'starter' | 'pro';
+  status: string;
+  current_period_end: string | null;
+  cancel_at_period_end: boolean;
+}
+
+/** The caller's subscription row, or null on the free trial. */
+export async function getSubscription(supabase: SupabaseClient): Promise<Subscription | null> {
+  const { data, error } = await supabase
+    .from('subscriptions')
+    .select('plan, status, current_period_end, cancel_at_period_end')
+    .maybeSingle();
+  if (error) throw error;
+  return data as Subscription | null;
+}
+
+/** How many products the caller's plan allows (1 on the trial). */
+export async function getProductLimit(supabase: SupabaseClient): Promise<number> {
+  const { data, error } = await supabase.rpc('my_product_limit');
+  if (error) throw error;
+  return typeof data === 'number' ? data : 1;
+}
+
+export const LIVE_STATUSES = new Set(['active', 'trialing', 'past_due']);
+
+/** True when the database refused an insert because the plan's product limit is reached. */
+export const isPlanLimit = (e: unknown) => (e as { message?: string } | null)?.message?.includes('plan_limit_reached') ?? false;

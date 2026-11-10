@@ -41,6 +41,21 @@ Tables `products`, `scans`, `scan_findings`, all with row-level security:
 2. Authentication → Emails → SMTP: the built-in sender only allows a few emails per hour. Connect an email provider (e.g. Resend) before real users arrive.
 3. Google (optional): create an OAuth client in Google Cloud (authorized redirect URI: `https://zgvftpdnqszkyyyognrv.supabase.co/auth/v1/callback`), paste its client ID and secret in Authentication → Providers → Google, then set `VITE_GOOGLE_AUTH=true` in Vercel and redeploy. The Google button stays hidden until then.
 
+## Payments (Stripe)
+
+Plans: **Trial** (free, 1 product), **Starter** €19/month (10 products), **Pro** €49/month (50 products). Limits are enforced in the database (trigger on `products`), not just in the UI.
+
+- `supabase/functions/billing` (deployed, `verify_jwt` off because it authenticates itself):
+  - `POST /billing/checkout`: logged-in user → Stripe Checkout Session (prices defined inline, nothing to create in Stripe). Refuses if the user already pays (`409`): plan changes go through the portal.
+  - `POST /billing/portal`: Stripe customer portal (change plan, cancel, invoices).
+  - `POST /billing/webhook`: verifies the `Stripe-Signature` header (HMAC, 5-minute replay window), re-reads the subscription from Stripe and upserts `public.subscriptions` with the service role.
+- `public.subscriptions`: sellers can only read their own row; only the webhook writes.
+- Function secrets (Supabase → Edge Functions → Secrets): `STRIPE_SECRET_KEY` (`sk_test_…` in test mode), `STRIPE_WEBHOOK_SECRET` (`whsec_…`), optional `SITE_URL`.
+- Stripe dashboard → Developers → Webhooks: endpoint `https://zgvftpdnqszkyyyognrv.supabase.co/functions/v1/billing/webhook`, events `checkout.session.completed`, `customer.subscription.created`, `customer.subscription.updated`, `customer.subscription.deleted`.
+- Stripe dashboard → Settings → Billing → Customer portal: enable it (plan switching between Starter and Pro, cancellation).
+- The pricing page shows a "test mode" notice until `VITE_STRIPE_TEST_MODE=false` is set in Vercel. **Only go live with a registered business (SIRET) and live keys.**
+- Tests: `node --test supabase/functions/billing/stripe.test.mjs`.
+
 ## Running a scan for a seller
 
 1. Supabase → Table editor → `scans`, filter `status = requested`. Note the scan `id` and the product's ASIN.

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState, type FormEvent } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { useLang } from '../lang';
 import { AppShell, Card, Spinner } from '../components/AppShell';
@@ -7,7 +7,8 @@ import { StatusBadge } from '../components/StatusBadge';
 import { Icon, type IconName } from '../components/Icon';
 import { MARKETPLACES, type Marketplace } from '../lib/supabase';
 import { useTitle } from '../lib/useTitle';
-import { addProduct, deleteProduct, isDuplicate, listProducts, requestScan, type Product } from '../lib/db';
+import { addProduct, deleteProduct, getProductLimit, getSubscription, isDuplicate, isPlanLimit, listProducts, LIVE_STATUSES, requestScan, type Product, type Subscription } from '../lib/db';
+import { BillingError, openPortal } from '../lib/billing';
 
 const ASIN_RE = /^[A-Z0-9]{10}$/;
 const inputClass = 'mt-1.5 block w-full rounded-lg border border-neutral-300 bg-white px-3.5 py-2.5 text-base text-ink outline-none focus:border-ink focus:ring-2 focus:ring-ink/20 aria-[invalid=true]:border-red-500';
@@ -42,10 +43,18 @@ function Products({ supabase }: { supabase: SupabaseClient }) {
   const [label, setLabel] = useState('');
   const [formError, setFormError] = useState<string | null>(null);
   const [adding, setAdding] = useState(false);
+  const [sub, setSub] = useState<Subscription | null>(null);
+  const [limit, setLimit] = useState(1);
+  const [limitHit, setLimitHit] = useState(false);
+  const [params, setParams] = useSearchParams();
+  const [justPaid] = useState(params.get('checkout') === 'success');
 
   const refresh = useCallback(async () => {
     try {
-      setProducts(await listProducts(supabase));
+      const [list, subscription, max] = await Promise.all([listProducts(supabase), getSubscription(supabase), getProductLimit(supabase)]);
+      setProducts(list);
+      setSub(subscription);
+      setLimit(max);
       setLoadError(false);
     } catch (e) {
       console.error('Load products failed', e);
@@ -54,6 +63,21 @@ function Products({ supabase }: { supabase: SupabaseClient }) {
   }, [supabase]);
 
   useEffect(() => { void refresh(); }, [refresh]);
+
+  // After Stripe Checkout the webhook may land a few seconds later: drop the query flag and poll briefly.
+  useEffect(() => {
+    if (!justPaid) return;
+    setParams({}, { replace: true });
+    let tries = 0;
+    const id = window.setInterval(() => { tries += 1; void refresh(); if (tries >= 5) window.clearInterval(id); }, 3000);
+    return () => window.clearInterval(id);
+  }, [justPaid, refresh, setParams]);
+
+  const manage = async () => {
+    setActionError(null);
+    try { await openPortal(supabase); }
+    catch (e) { console.error('Portal failed', e); setActionError(e instanceof BillingError && e.code === 'billing_not_configured' ? t.pricing.notConfigured : t.pricing.error); }
+  };
 
   const run = async (id: string, action: () => Promise<void>) => {
     setBusyId(id);
@@ -74,6 +98,7 @@ function Products({ supabase }: { supabase: SupabaseClient }) {
     const cleanAsin = asin.trim().toUpperCase();
     if (!ASIN_RE.test(cleanAsin)) { setFormError(t.form.errorAsin); return; }
     setFormError(null);
+    setLimitHit(false);
     setAdding(true);
     try {
       await addProduct(supabase, { asin: cleanAsin, marketplace, label: label.trim() || null });
@@ -82,7 +107,8 @@ function Products({ supabase }: { supabase: SupabaseClient }) {
       await refresh();
     } catch (err) {
       console.error('Add product failed', err);
-      setFormError(isDuplicate(err) ? t.app.duplicate : t.app.actionError);
+      if (isPlanLimit(err)) setLimitHit(true);
+      else setFormError(isDuplicate(err) ? t.app.duplicate : t.app.actionError);
     } finally {
       setAdding(false);
     }
@@ -91,6 +117,8 @@ function Products({ supabase }: { supabase: SupabaseClient }) {
   const dateFmt = new Intl.DateTimeFormat(lang === 'fr' ? 'fr-FR' : 'en-GB', { dateStyle: 'medium' });
   const pending = products?.filter(p => p.hasOpenScan).length ?? 0;
   const copies = products?.reduce((sum, p) => sum + (p.latestScan?.status === 'done' ? p.latestScan.findings : 0), 0) ?? 0;
+  const paying = !!sub && LIVE_STATUSES.has(sub.status);
+  const atLimit = (products?.length ?? 0) >= limit;
 
   return (
     <div className="space-y-8">
@@ -98,6 +126,38 @@ function Products({ supabase }: { supabase: SupabaseClient }) {
         <h1 className="text-3xl font-semibold tracking-tight">{t.app.title}</h1>
         <p className="mt-1 text-sm text-neutral-500">{t.app.betaNote}</p>
       </div>
+
+      {justPaid && (
+        <p role="status" className="flex items-center gap-2 rounded-xl bg-ink p-4 text-sm text-white">
+          <Icon name="check" className="h-4 w-4 shrink-0 text-signal" />{t.plan.success}
+        </p>
+      )}
+
+      {products && (
+        <Card className="flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between">
+          <div className="min-w-0">
+            <p className="text-sm text-neutral-500">{t.plan.title}</p>
+            <p className="mt-0.5 text-lg font-semibold">
+              {paying ? t.pricing.plans[sub!.plan].name : t.plan.free}
+              <span className="ml-2 text-sm font-normal text-neutral-500">{t.plan.usage(products.length, limit)}</span>
+            </p>
+            {paying && sub!.status === 'past_due' && <p className="mt-1 text-sm text-signal">{t.plan.pastDue}</p>}
+            {paying && sub!.current_period_end && sub!.status !== 'past_due' && (
+              <p className="mt-1 text-sm text-neutral-500">
+                {sub!.cancel_at_period_end ? t.plan.endsOn : t.plan.renews} {dateFmt.format(new Date(sub!.current_period_end))}
+              </p>
+            )}
+            <div className="mt-3 h-1.5 w-full max-w-xs rounded-full bg-neutral-100">
+              <div className="h-1.5 rounded-full bg-ink" style={{ width: `${Math.min(100, (products.length / limit) * 100)}%` }} />
+            </div>
+          </div>
+          {paying ? (
+            <button type="button" onClick={manage} className="rounded-full border border-neutral-300 px-5 py-2.5 text-sm font-medium hover:border-ink">{t.plan.manage}</button>
+          ) : (
+            <Link to="/pricing" className="rounded-full bg-ink px-5 py-2.5 text-center text-sm font-medium text-white hover:bg-neutral-800">{t.plan.upgrade}</Link>
+          )}
+        </Card>
+      )}
 
       {products && (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
@@ -129,12 +189,18 @@ function Products({ supabase }: { supabase: SupabaseClient }) {
               <input id="p-label" type="text" maxLength={120} placeholder={t.app.labelPlaceholder}
                 value={label} onChange={e => setLabel(e.target.value)} className={inputClass} />
             </div>
-            <button type="submit" disabled={adding}
+            <button type="submit" disabled={adding || atLimit}
               className="rounded-lg bg-ink px-5 py-2.5 font-semibold text-white hover:bg-neutral-800 disabled:opacity-60">
               {adding ? t.app.adding : t.app.add}
             </button>
           </div>
           {formError && <p id="p-error" role="alert" className="mt-3 text-sm text-red-600">{formError}</p>}
+          {(limitHit || atLimit) && (
+            <p role={limitHit ? 'alert' : undefined} className="mt-3 flex flex-wrap items-center gap-x-2 text-sm text-neutral-600">
+              {t.plan.limitReached}
+              <Link to={paying ? '#' : '/pricing'} onClick={paying ? (e => { e.preventDefault(); void manage(); }) : undefined} className="font-medium text-ink underline underline-offset-4">{t.plan.limitCta}</Link>
+            </p>
+          )}
         </form>
       </Card>
 

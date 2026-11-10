@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react';
-import { Link, Navigate } from 'react-router-dom';
+import { Link, Navigate, useSearchParams } from 'react-router-dom';
 import { useLang } from '../lang';
 import { useAuth } from '../lib/auth';
 import { GOOGLE_AUTH_ENABLED } from '../lib/supabase';
@@ -19,9 +19,14 @@ export default function Login() {
   const [status, setStatus] = useState<'idle' | 'sending' | 'sent'>('idle');
   const [error, setError] = useState<string | null>(null);
 
-  if (auth.status === 'signed-in') return <Navigate to="/app" replace />;
+  const [params] = useSearchParams();
+  const rawNext = params.get('next') ?? '';
+  // Only same-site paths: never redirect to another origin.
+  const next = rawNext.startsWith('/') && !rawNext.startsWith('//') ? rawNext : '/app';
 
-  const redirectTo = `${window.location.origin}/app`;
+  if (auth.status === 'signed-in') return <Navigate to={next} replace />;
+
+  const redirectTo = `${window.location.origin}${next}`;
 
   const sendLink = async (e: FormEvent) => {
     e.preventDefault();
