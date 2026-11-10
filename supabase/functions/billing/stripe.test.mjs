@@ -14,7 +14,7 @@ test('formEncode produces Stripe-style nested keys', () => {
 test('checkoutParams builds a monthly EUR subscription with user metadata', () => {
   const p = checkoutParams({ plan: 'pro', customerId: 'cus_1', userId: 'u1', siteUrl: 'https://photosentry.vercel.app' });
   assert.equal(p.mode, 'subscription');
-  assert.equal(p.line_items[0].price_data.unit_amount, 4900);
+  assert.equal(p.line_items[0].price_data.unit_amount, 1500);
   assert.equal(p.line_items[0].price_data.currency, 'eur');
   assert.equal(p.line_items[0].price_data.recurring.interval, 'month');
   assert.deepEqual(p.subscription_data.metadata, { user_id: 'u1', plan: 'pro' });
@@ -48,7 +48,7 @@ test('subscriptionRow maps a Stripe subscription (period end on items, newer API
   const row = subscriptionRow({
     id: 'sub_1', customer: 'cus_1', status: 'active', cancel_at_period_end: false,
     metadata: { user_id: 'u1', plan: 'starter' },
-    items: { data: [{ current_period_end: 1_800_000_000, price: { unit_amount: 1900 } }] },
+    items: { data: [{ current_period_end: 1_800_000_000, price: { unit_amount: 500 } }] },
   });
   assert.equal(row.user_id, 'u1');
   assert.equal(row.plan, 'starter');

@@ -43,7 +43,7 @@ Tables `products`, `scans`, `scan_findings`, all with row-level security:
 
 ## Payments (Stripe)
 
-Plans: **Trial** (free, 1 product), **Starter** €19/month (10 products), **Pro** €49/month (50 products). Limits are enforced in the database (trigger on `products`), not just in the UI.
+Plans: **Trial** (free, 1 product), **Starter** €5/month (10 products), **Pro** €15/month (50 products) — launch pricing. Limits are enforced in the database (trigger on `products`), not just in the UI.
 
 - `supabase/functions/billing` (deployed, `verify_jwt` off because it authenticates itself):
   - `POST /billing/checkout`: logged-in user → Stripe Checkout Session (prices defined inline, nothing to create in Stripe). Refuses if the user already pays (`409`): plan changes go through the portal.

@@ -2,8 +2,8 @@
 // No SDK: plain fetch + Web Crypto, so it runs the same in both.
 
 export const PLANS = {
-  starter: { amount: 1900, name: 'PhotoSentry Starter', products: 10 },
-  pro: { amount: 4900, name: 'PhotoSentry Pro', products: 50 },
+  starter: { amount: 500, name: 'PhotoSentry Starter', products: 10 },
+  pro: { amount: 1500, name: 'PhotoSentry Pro', products: 50 },
 };
 
 /** Encodes nested params the way Stripe's API expects (a[b][0][c]=...). */

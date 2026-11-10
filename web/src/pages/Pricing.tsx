@@ -55,6 +55,7 @@ export default function Pricing() {
         <section className={`${container} pt-20 pb-12 text-center sm:pt-28`}>
           <h1 className="text-5xl font-semibold tracking-[-0.04em] text-balance sm:text-6xl">{pt.title}</h1>
           <p className="mx-auto mt-6 max-w-2xl text-lg text-neutral-500">{pt.subtitle}</p>
+          <p className="mx-auto mt-6 max-w-xl text-sm font-medium text-ink">{pt.launch}</p>
           {STRIPE_TEST_MODE && (
             <p className="mx-auto mt-6 inline-flex max-w-xl items-center gap-2 rounded-full border border-neutral-200 px-4 py-1.5 text-xs text-neutral-600">
               <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-signal" />{pt.testMode}

@@ -72,7 +72,7 @@ const fr = {
       { q: 'Est-ce légal ?', a: 'Oui. Nous comparons des images publiques, comme le ferait une recherche d’image sur Google. Nous n’accédons à aucun compte et ne contournons aucune protection.' },
       { q: 'Que faire quand je trouve une copie ?', a: 'Si vous êtes l’auteur des photos, vous pouvez signaler une violation de droit d’auteur via le formulaire « Signaler une infraction » d’Amazon, ou contacter la plateforme concernée. Le rapport indique les liens à fournir.' },
       { q: 'Quelles plateformes sont couvertes ?', a: 'Toutes celles que les moteurs de recherche indexent : Amazon, Temu, AliExpress, eBay, Walmart, Etsy, les boutiques Shopify, etc. La couverture de Temu et AliExpress dépend de leur indexation.' },
-      { q: 'Combien ça coûte ?', a: 'Votre premier produit est gratuit, sans carte bancaire. Pour suivre plus de produits : Starter à 19 €/mois (10 produits) ou Pro à 49 €/mois (50 produits), sans engagement.' },
+      { q: 'Combien ça coûte ?', a: 'Votre premier produit est gratuit, sans carte bancaire. Pour suivre plus de produits : Starter à 5 €/mois (10 produits) ou Pro à 15 €/mois (50 produits), prix de lancement, sans engagement.' },
     ],
   },
   footer: {
@@ -168,6 +168,7 @@ const fr = {
     testMode: 'Mode test : les paiements utilisent les cartes de test de Stripe. Aucune somme réelle n’est débitée.',
     current: 'Votre offre',
     popular: 'Le plus choisi',
+    launch: 'Prix de lancement : vous gardez ce tarif tant que votre abonnement reste actif.',
     startFree: 'Commencer gratuitement',
     subscribe: 'Choisir',
     manage: 'Gérer l’abonnement',
@@ -178,8 +179,8 @@ const fr = {
     secure: 'Paiement sécurisé par Stripe. Nous ne voyons jamais votre numéro de carte.',
     plans: {
       free: { name: 'Essai', price: '0 €', desc: 'Pour tester sur un produit.', features: ['1 produit suivi', '1 scan par mois', 'Rapport avec preuves'] },
-      starter: { name: 'Starter', price: '19 €', desc: 'Pour une petite boutique.', features: ['Jusqu’à 10 produits', '1 scan par produit et par mois', 'Rapports avec preuves', 'Support par e-mail'] },
-      pro: { name: 'Pro', price: '49 €', desc: 'Pour un catalogue qui grandit.', features: ['Jusqu’à 50 produits', '1 scan par produit et par semaine', 'Rapports avec preuves', 'Support prioritaire'] },
+      starter: { name: 'Starter', price: '5 €', desc: 'Pour une petite boutique.', features: ['Jusqu’à 10 produits', '1 scan par produit et par mois', 'Rapports avec preuves', 'Support par e-mail'] },
+      pro: { name: 'Pro', price: '15 €', desc: 'Pour un catalogue qui grandit.', features: ['Jusqu’à 50 produits', '1 scan par produit et par semaine', 'Rapports avec preuves', 'Support prioritaire'] },
     },
     faq: [
       { q: 'Puis-je annuler à tout moment ?', a: 'Oui. L’abonnement s’arrête à la fin du mois payé, depuis « Gérer l’abonnement ».' },
@@ -333,7 +334,7 @@ const en: Dict = {
       { q: 'Is this legal?', a: 'Yes. We compare public images, the same way a Google image search does. We don’t access any account or bypass any protection.' },
       { q: 'What do I do when I find a copy?', a: 'If you own the photos, you can report a copyright infringement through Amazon’s “Report Infringement” form, or contact the platform involved. The report lists the links to provide.' },
       { q: 'Which platforms are covered?', a: 'Any that search engines index: Amazon, Temu, AliExpress, eBay, Walmart, Etsy, Shopify stores and more. Coverage of Temu and AliExpress depends on how well they’re indexed.' },
-      { q: 'How much does it cost?', a: 'Your first product is free, no credit card needed. To track more: Starter at €19/month (10 products) or Pro at €49/month (50 products), cancel anytime.' },
+      { q: 'How much does it cost?', a: 'Your first product is free, no credit card needed. To track more: Starter at €5/month (10 products) or Pro at €15/month (50 products), launch pricing, cancel anytime.' },
     ],
   },
   footer: {
@@ -429,6 +430,7 @@ const en: Dict = {
     testMode: 'Test mode: payments use Stripe test cards. No real money is charged.',
     current: 'Your plan',
     popular: 'Most popular',
+    launch: 'Launch pricing: you keep this price for as long as your subscription stays active.',
     startFree: 'Start free',
     subscribe: 'Choose',
     manage: 'Manage subscription',
@@ -439,8 +441,8 @@ const en: Dict = {
     secure: 'Secure payment by Stripe. We never see your card number.',
     plans: {
       free: { name: 'Trial', price: '€0', desc: 'To try it on one product.', features: ['1 product tracked', '1 scan per month', 'Report with evidence'] },
-      starter: { name: 'Starter', price: '€19', desc: 'For a small store.', features: ['Up to 10 products', '1 scan per product per month', 'Reports with evidence', 'Email support'] },
-      pro: { name: 'Pro', price: '€49', desc: 'For a growing catalogue.', features: ['Up to 50 products', '1 scan per product per week', 'Reports with evidence', 'Priority support'] },
+      starter: { name: 'Starter', price: '€5', desc: 'For a small store.', features: ['Up to 10 products', '1 scan per product per month', 'Reports with evidence', 'Email support'] },
+      pro: { name: 'Pro', price: '€15', desc: 'For a growing catalogue.', features: ['Up to 50 products', '1 scan per product per week', 'Reports with evidence', 'Priority support'] },
     },
     faq: [
       { q: 'Can I cancel anytime?', a: 'Yes. Your plan stops at the end of the paid month, from “Manage subscription”.' },
