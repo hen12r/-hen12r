@@ -8,8 +8,8 @@ import { Icon } from './Icon';
 
 export function Spinner({ label }: { label: string }) {
   return (
-    <div role="status" className="flex items-center gap-3 py-16 text-slate-500">
-      <span className="h-5 w-5 animate-spin rounded-full border-2 border-slate-300 border-t-ink" />
+    <div role="status" className="flex items-center gap-3 py-16 text-neutral-500">
+      <span className="h-5 w-5 animate-spin rounded-full border-2 border-neutral-300 border-t-ink" />
       {label}
     </div>
   );
@@ -17,7 +17,7 @@ export function Spinner({ label }: { label: string }) {
 
 /** White rounded panel used across the app. */
 export function Card({ children, className = '' }: { children: ReactNode; className?: string }) {
-  return <div className={`rounded-2xl bg-white shadow-sm ring-1 ring-slate-200 ${className}`}>{children}</div>;
+  return <div className={`rounded-xl bg-white border border-neutral-200 ${className}`}>{children}</div>;
 }
 
 function UserMenu({ email, onLogout }: { email: string; onLogout: () => void }) {
@@ -39,22 +39,22 @@ function UserMenu({ email, onLogout }: { email: string; onLogout: () => void }) 
     <div ref={ref} className="relative">
       <button
         type="button" onClick={() => setOpen(o => !o)} aria-expanded={open} aria-haspopup="menu" aria-label={t.ui.menu}
-        className="flex items-center gap-2 rounded-full py-1 pl-1 pr-2 hover:bg-slate-100"
+        className="flex items-center gap-2 rounded-full py-1 pl-1 pr-2 hover:bg-neutral-100"
       >
-        <span className="flex h-8 w-8 items-center justify-center rounded-full bg-ink text-sm font-bold uppercase text-signal">
+        <span className="flex h-8 w-8 items-center justify-center rounded-full bg-ink text-sm font-semibold uppercase text-signal">
           {email.charAt(0) || '?'}
         </span>
-        <Icon name="chevron" className={`h-4 w-4 text-slate-500 transition ${open ? 'rotate-180' : ''}`} />
+        <Icon name="chevron" className={`h-4 w-4 text-neutral-500 transition ${open ? 'rotate-180' : ''}`} />
       </button>
       {open && (
-        <div role="menu" className="absolute right-0 z-30 mt-2 w-64 overflow-hidden rounded-xl bg-white shadow-lg ring-1 ring-slate-200">
-          <div className="border-b border-slate-100 px-4 py-3">
-            <p className="text-xs text-slate-500">{t.app.signedInAs}</p>
+        <div role="menu" className="absolute right-0 z-30 mt-2 w-64 overflow-hidden rounded-xl bg-white shadow-lg border border-neutral-200">
+          <div className="border-b border-neutral-100 px-4 py-3">
+            <p className="text-xs text-neutral-500">{t.app.signedInAs}</p>
             <p className="truncate text-sm font-semibold">{email}</p>
           </div>
           <button
             type="button" role="menuitem" onClick={onLogout}
-            className="flex w-full items-center gap-2 px-4 py-3 text-left text-sm font-medium text-slate-700 hover:bg-slate-50"
+            className="flex w-full items-center gap-2 px-4 py-3 text-left text-sm font-medium text-neutral-700 hover:bg-neutral-50"
           >
             <Icon name="logout" className="h-4 w-4" />{t.auth.logout}
           </button>
@@ -72,15 +72,15 @@ export function AppShell({ children }: { children: (ctx: { supabase: SupabaseCli
   if (auth.status === 'signed-out') return <Navigate to="/login" replace />;
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      <header className="sticky top-0 z-20 border-b border-slate-200 bg-white/90 backdrop-blur">
+    <div className="min-h-screen bg-neutral-50">
+      <header className="sticky top-0 z-20 border-b border-neutral-200 bg-white/90 backdrop-blur">
         <div className={`${container} flex h-16 items-center justify-between gap-4`}>
           <div className="flex items-center gap-8">
             <Link to="/app" aria-label="PhotoSentry"><Logo /></Link>
             <nav className="hidden sm:block">
               <NavLink
                 to="/app"
-                className={({ isActive }) => `rounded-md px-3 py-2 text-sm font-semibold ${isActive ? 'bg-slate-100 text-ink' : 'text-slate-600 hover:text-ink'}`}
+                className={({ isActive }) => `rounded-md px-3 py-2 text-sm font-semibold ${isActive ? 'bg-neutral-100 text-ink' : 'text-neutral-600 hover:text-ink'}`}
               >
                 {t.ui.nav}
               </NavLink>
@@ -89,7 +89,7 @@ export function AppShell({ children }: { children: (ctx: { supabase: SupabaseCli
           <div className="flex items-center gap-2">
             <button
               type="button" onClick={toggle} aria-label={`${t.lang.label}: ${t.lang.switchTo}`}
-              className="rounded-md px-2.5 py-1.5 text-sm font-semibold text-slate-600 hover:bg-slate-100 hover:text-ink"
+              className="rounded-md px-2.5 py-1.5 text-sm font-semibold text-neutral-600 hover:bg-neutral-100 hover:text-ink"
             >
               {lang === 'fr' ? 'EN' : 'FR'}
             </button>

@@ -19,7 +19,7 @@ export function validate(email: string, asin: string, consent: boolean, t: Dict)
   return errors;
 }
 
-const inputClass = 'mt-1.5 block w-full rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-base text-ink shadow-sm outline-none focus:border-ink focus:ring-2 focus:ring-ink/20 aria-[invalid=true]:border-red-500';
+const inputClass = 'mt-1.5 block w-full rounded-lg border border-neutral-300 bg-white px-3.5 py-2.5 text-base text-ink outline-none focus:border-ink focus:ring-2 focus:ring-ink/20 aria-[invalid=true]:border-red-500';
 
 export function ScanForm({ t, lang }: { t: Dict; lang: Lang }) {
   const [email, setEmail] = useState('');
@@ -57,14 +57,14 @@ export function ScanForm({ t, lang }: { t: Dict; lang: Lang }) {
   };
 
   return (
-    <section id="scan" className="scroll-mt-16 bg-amber-50">
+    <section id="scan" className="scroll-mt-16 bg-paper">
       <div className="mx-auto grid w-full max-w-6xl gap-10 px-4 py-16 sm:px-6 sm:py-20 md:grid-cols-2">
         <div>
-          <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">{t.form.title}</h2>
-          <p className="mt-4 text-lg leading-relaxed text-slate-700">{t.form.subtitle}</p>
+          <h2 className="text-3xl font-semibold tracking-tight sm:text-4xl">{t.form.title}</h2>
+          <p className="mt-4 text-lg leading-relaxed text-neutral-700">{t.form.subtitle}</p>
         </div>
 
-        <div className="rounded-xl bg-white p-6 shadow-sm ring-1 ring-slate-200 sm:p-8">
+        <div className="rounded-xl bg-white p-6 border border-neutral-200 sm:p-8">
           {status === 'success' ? (
             <div role="status" className="space-y-4">
               <p className="text-lg font-semibold text-emerald-700">{t.form.success}</p>
@@ -97,7 +97,7 @@ export function ScanForm({ t, lang }: { t: Dict; lang: Lang }) {
                 />
                 {errors.asin
                   ? <p id="asin-error" className="mt-1.5 text-sm text-red-600">{errors.asin}</p>
-                  : <p id="asin-help" className="mt-1.5 text-sm text-slate-500">{t.form.asinHelp}</p>}
+                  : <p id="asin-help" className="mt-1.5 text-sm text-neutral-500">{t.form.asinHelp}</p>}
               </div>
 
               <div>
@@ -118,11 +118,11 @@ export function ScanForm({ t, lang }: { t: Dict; lang: Lang }) {
               </div>
 
               <div>
-                <label className="flex items-start gap-3 text-sm leading-relaxed text-slate-700">
+                <label className="flex items-start gap-3 text-sm leading-relaxed text-neutral-700">
                   <input
                     type="checkbox" checked={consent} onChange={e => setConsent(e.target.checked)}
                     aria-invalid={!!errors.consent} aria-describedby={errors.consent ? 'consent-error' : undefined}
-                    className="mt-0.5 h-5 w-5 shrink-0 rounded border-slate-300 accent-ink"
+                    className="mt-0.5 h-5 w-5 shrink-0 rounded border-neutral-300 accent-ink"
                   />
                   <span>
                     {t.form.consent}{' '}
@@ -136,7 +136,7 @@ export function ScanForm({ t, lang }: { t: Dict; lang: Lang }) {
 
               <button
                 type="submit" disabled={status === 'sending'}
-                className="w-full rounded-lg bg-ink px-6 py-3.5 font-semibold text-white hover:bg-slate-800 disabled:opacity-60"
+                className="w-full rounded-lg bg-ink px-6 py-3.5 font-semibold text-white hover:bg-neutral-800 disabled:opacity-60"
               >
                 {status === 'sending' ? t.form.sending : t.form.submit}
               </button>

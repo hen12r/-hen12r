@@ -2,9 +2,16 @@
 
 @theme {
   --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
-  --color-ink: #0f172a;
-  --color-signal: #f59e0b;
+  --color-ink: #0a0a0a;
+  --color-signal: #ff5a1f;
+  --color-paper: #fafaf9;
 }
 
 html { scroll-behavior: smooth; }
-body { background: #ffffff; color: var(--color-ink); }
+body {
+  background: #ffffff;
+  color: var(--color-ink);
+  -webkit-font-smoothing: antialiased;
+  font-feature-settings: "ss01", "cv11";
+}
+::selection { background: var(--color-signal); color: #fff; }
