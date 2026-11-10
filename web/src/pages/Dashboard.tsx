@@ -7,7 +7,7 @@ import { StatusBadge } from '../components/StatusBadge';
 import { Icon, type IconName } from '../components/Icon';
 import { MARKETPLACES, type Marketplace } from '../lib/supabase';
 import { useTitle } from '../lib/useTitle';
-import { addProduct, deleteProduct, getProductLimit, getSubscription, isDuplicate, isPlanLimit, listProducts, LIVE_STATUSES, requestScan, type Product, type Subscription } from '../lib/db';
+import { addProduct, deleteProduct, getProductLimit, getScanInterval, getSubscription, isDuplicate, isImageUrl, isPlanLimit, listProducts, LIVE_STATUSES, requestScan, runScans, scanTooSoonUntil, setProductImage, type Product, type Subscription } from '../lib/db';
 import { BillingError, openPortal } from '../lib/billing';
 
 const ASIN_RE = /^[A-Z0-9]{10}$/;
@@ -41,6 +41,9 @@ function Products({ supabase }: { supabase: SupabaseClient }) {
   const [asin, setAsin] = useState('');
   const [marketplace, setMarketplace] = useState<Marketplace>(lang === 'fr' ? 'amazon.fr' : 'amazon.com');
   const [label, setLabel] = useState('');
+  const [imageUrl, setImageUrl] = useState('');
+  const [imageDrafts, setImageDrafts] = useState<Record<string, string>>({});
+  const [scanInterval, setScanInterval] = useState(30);
   const [formError, setFormError] = useState<string | null>(null);
   const [adding, setAdding] = useState(false);
   const [sub, setSub] = useState<Subscription | null>(null);
@@ -51,10 +54,11 @@ function Products({ supabase }: { supabase: SupabaseClient }) {
 
   const refresh = useCallback(async () => {
     try {
-      const [list, subscription, max] = await Promise.all([listProducts(supabase), getSubscription(supabase), getProductLimit(supabase)]);
+      const [list, subscription, max, interval] = await Promise.all([listProducts(supabase), getSubscription(supabase), getProductLimit(supabase), getScanInterval(supabase)]);
       setProducts(list);
       setSub(subscription);
       setLimit(max);
+      setScanInterval(interval);
       setLoadError(false);
     } catch (e) {
       console.error('Load products failed', e);
@@ -72,6 +76,30 @@ function Products({ supabase }: { supabase: SupabaseClient }) {
     const id = window.setInterval(() => { tries += 1; void refresh(); if (tries >= 5) window.clearInterval(id); }, 3000);
     return () => window.clearInterval(id);
   }, [justPaid, refresh, setParams]);
+
+  const requestAndRun = async (id: string) => {
+    setBusyId(id);
+    setActionError(null);
+    try {
+      await requestScan(supabase, id);
+      await refresh();
+      // Runs immediately when scanning is configured; otherwise the scan stays "requested".
+      await runScans(supabase).catch(e => console.warn('Scan run deferred', e));
+      await refresh();
+    } catch (e) {
+      const until = scanTooSoonUntil(e);
+      console.error('Scan request failed', e);
+      setActionError(until ? t.scanUi.tooSoon(dateFmt.format(until)) : t.app.actionError);
+    } finally {
+      setBusyId(null);
+    }
+  };
+
+  const saveImage = (id: string) => {
+    const url = (imageDrafts[id] ?? '').trim();
+    if (!isImageUrl(url)) { setActionError(t.scanUi.imageError); return; }
+    void run(id, () => setProductImage(supabase, id, url)).then(() => setImageDrafts(d => { const { [id]: _, ...rest } = d; return rest; }));
+  };
 
   const manage = async () => {
     setActionError(null);
@@ -97,13 +125,16 @@ function Products({ supabase }: { supabase: SupabaseClient }) {
     e.preventDefault();
     const cleanAsin = asin.trim().toUpperCase();
     if (!ASIN_RE.test(cleanAsin)) { setFormError(t.form.errorAsin); return; }
+    const cleanImage = imageUrl.trim();
+    if (cleanImage && !isImageUrl(cleanImage)) { setFormError(t.scanUi.imageError); return; }
     setFormError(null);
     setLimitHit(false);
     setAdding(true);
     try {
-      await addProduct(supabase, { asin: cleanAsin, marketplace, label: label.trim() || null });
+      await addProduct(supabase, { asin: cleanAsin, marketplace, label: label.trim() || null, image_url: cleanImage || null });
       setAsin('');
       setLabel('');
+      setImageUrl('');
       await refresh();
     } catch (err) {
       console.error('Add product failed', err);
@@ -141,6 +172,7 @@ function Products({ supabase }: { supabase: SupabaseClient }) {
               {paying ? t.pricing.plans[sub!.plan].name : t.plan.free}
               <span className="ml-2 text-sm font-normal text-neutral-500">{t.plan.usage(products.length, limit)}</span>
             </p>
+            <p className="mt-1 text-sm text-neutral-500">{t.scanUi.interval(scanInterval)}</p>
             {paying && sub!.status === 'past_due' && <p className="mt-1 text-sm text-signal">{t.plan.pastDue}</p>}
             {paying && sub!.current_period_end && sub!.status !== 'past_due' && (
               <p className="mt-1 text-sm text-neutral-500">
@@ -193,6 +225,12 @@ function Products({ supabase }: { supabase: SupabaseClient }) {
               className="rounded-lg bg-ink px-5 py-2.5 font-semibold text-white hover:bg-neutral-800 disabled:opacity-60">
               {adding ? t.app.adding : t.app.add}
             </button>
+          </div>
+          <div className="mt-4">
+            <label htmlFor="p-image" className="text-sm font-semibold">{t.scanUi.imageLabel}</label>
+            <input id="p-image" type="url" inputMode="url" spellCheck={false} placeholder="https://m.media-amazon.com/images/I/…jpg"
+              value={imageUrl} onChange={e => setImageUrl(e.target.value)} className={inputClass} />
+            <p className="mt-1.5 text-xs text-neutral-500">{t.scanUi.imageHelp}</p>
           </div>
           {formError && <p id="p-error" role="alert" className="mt-3 text-sm text-red-600">{formError}</p>}
           {(limitHit || atLimit) && (
@@ -247,6 +285,15 @@ function Products({ supabase }: { supabase: SupabaseClient }) {
                           </>
                         ) : <span className="text-neutral-400">{t.app.neverScanned}</span>}
                       </div>
+                      {!p.image_url && (
+                        <form onSubmit={e => { e.preventDefault(); saveImage(p.id); }} className="mt-3 flex max-w-md gap-2">
+                          <input type="url" aria-label={t.scanUi.imageLabel} placeholder={t.scanUi.addImage}
+                            value={imageDrafts[p.id] ?? ''} onChange={e => setImageDrafts(d => ({ ...d, [p.id]: e.target.value }))}
+                            className="min-w-0 flex-1 rounded-lg border border-neutral-300 px-3 py-1.5 text-sm outline-none focus:border-ink" />
+                          <button type="submit" disabled={busyId === p.id || !(imageDrafts[p.id] ?? '').trim()}
+                            className="shrink-0 rounded-lg border border-neutral-300 px-3 py-1.5 text-sm font-medium hover:border-ink disabled:opacity-50">{t.scanUi.save}</button>
+                        </form>
+                      )}
                     </div>
                   </div>
                   <div className="flex flex-wrap gap-2 md:shrink-0">
@@ -256,9 +303,9 @@ function Products({ supabase }: { supabase: SupabaseClient }) {
                       </Link>
                     )}
                     <button type="button" disabled={p.hasOpenScan || busyId === p.id}
-                      onClick={() => run(p.id, () => requestScan(supabase, p.id))}
+                      onClick={() => requestAndRun(p.id)}
                       className="rounded-lg bg-ink px-3.5 py-2 text-sm font-semibold text-white hover:bg-neutral-800 disabled:cursor-not-allowed disabled:opacity-50">
-                      {p.hasOpenScan ? t.app.scanPending : t.app.requestScan}
+                      {busyId === p.id ? t.scanUi.running : p.hasOpenScan ? t.app.scanPending : t.app.requestScan}
                     </button>
                     <button type="button" disabled={busyId === p.id} aria-label={`${t.app.delete} ${p.label || p.asin}`}
                       onClick={() => { if (window.confirm(t.app.confirmDelete)) void run(p.id, () => deleteProduct(supabase, p.id)); }}

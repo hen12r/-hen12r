@@ -159,7 +159,7 @@ const fr = {
     confirmDelete: 'Supprimer ce produit et ses rapports ?',
     neverScanned: 'Jamais scanné',
     copies: (n: number) => (n === 0 ? 'aucune copie' : n === 1 ? '1 copie' : `${n} copies`),
-    betaNote: 'Pendant la phase de test, les scans sont lancés à la main. Comptez en général 48 h.',
+    betaNote: 'Avec le lien de la photo, le scan se lance tout seul et le rapport arrive en quelques secondes. Sans lui, nous le faisons à la main sous 48 h.',
   },
   pricing: {
     title: 'Des tarifs simples',
@@ -185,6 +185,16 @@ const fr = {
       { q: 'Puis-je annuler à tout moment ?', a: 'Oui. L’abonnement s’arrête à la fin du mois payé, depuis « Gérer l’abonnement ».' },
       { q: 'Comment se passe le paiement ?', a: 'Par carte, sur la page sécurisée de Stripe. Vous recevez une facture par e-mail chaque mois.' },
     ],
+  },
+  scanUi: {
+    imageLabel: 'Lien de la photo principale (facultatif)',
+    imageHelp: 'Clic droit sur la photo de votre fiche Amazon → « Copier l’adresse de l’image ». Nécessaire pour le scan automatique.',
+    imageError: 'Collez un lien d’image qui commence par https://',
+    addImage: 'Ajouter le lien de la photo pour activer le scan automatique',
+    save: 'Enregistrer',
+    tooSoon: (date: string) => `Prochain scan possible le ${date} avec votre offre.`,
+    running: 'Scan en cours…',
+    interval: (days: number): string => (days <= 7 ? '1 scan par produit et par semaine' : '1 scan par produit et par mois'),
   },
   plan: {
     title: 'Votre offre',
@@ -410,7 +420,7 @@ const en: Dict = {
     confirmDelete: 'Delete this product and its reports?',
     neverScanned: 'Never scanned',
     copies: (n: number) => (n === 0 ? 'no copies' : n === 1 ? '1 copy' : `${n} copies`),
-    betaNote: 'During the beta, scans are run by hand. Allow about 48 hours.',
+    betaNote: 'With the photo link, the scan runs on its own and the report arrives in seconds. Without it, we run it by hand within 48 hours.',
   },
   pricing: {
     title: 'Simple pricing',
@@ -436,6 +446,16 @@ const en: Dict = {
       { q: 'Can I cancel anytime?', a: 'Yes. Your plan stops at the end of the paid month, from “Manage subscription”.' },
       { q: 'How does payment work?', a: 'By card, on Stripe’s secure page. You get an invoice by email every month.' },
     ],
+  },
+  scanUi: {
+    imageLabel: 'Main photo link (optional)',
+    imageHelp: 'Right-click the photo on your Amazon listing → “Copy image address”. Needed for automatic scans.',
+    imageError: 'Paste an image link that starts with https://',
+    addImage: 'Add the photo link to turn on automatic scans',
+    save: 'Save',
+    tooSoon: (date: string) => `Next scan possible on ${date} on your plan.`,
+    running: 'Scanning…',
+    interval: (days: number) => (days <= 7 ? '1 scan per product per week' : '1 scan per product per month'),
   },
   plan: {
     title: 'Your plan',

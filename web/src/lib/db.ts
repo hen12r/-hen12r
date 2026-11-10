@@ -16,6 +16,7 @@ export interface Product {
   asin: string;
   marketplace: Marketplace;
   label: string | null;
+  image_url: string | null;
   created_at: string;
   latestScan: ScanSummary | null;
   hasOpenScan: boolean;
@@ -42,21 +43,21 @@ export interface ScanReport {
 }
 
 interface ProductRow {
-  id: string; asin: string; marketplace: Marketplace; label: string | null; created_at: string;
+  id: string; asin: string; marketplace: Marketplace; label: string | null; image_url: string | null; created_at: string;
   scans: { id: string; status: ScanStatus; requested_at: string; completed_at: string | null; scan_findings: { count: number }[] }[];
 }
 
 export async function listProducts(supabase: SupabaseClient): Promise<Product[]> {
   const { data, error } = await supabase
     .from('products')
-    .select('id, asin, marketplace, label, created_at, scans(id, status, requested_at, completed_at, scan_findings(count))')
+    .select('id, asin, marketplace, label, image_url, created_at, scans(id, status, requested_at, completed_at, scan_findings(count))')
     .order('created_at', { ascending: false });
   if (error) throw error;
   return (data as ProductRow[]).map(p => {
     const scans = [...p.scans].sort((a, b) => b.requested_at.localeCompare(a.requested_at));
     const latest = scans[0];
     return {
-      id: p.id, asin: p.asin, marketplace: p.marketplace, label: p.label, created_at: p.created_at,
+      id: p.id, asin: p.asin, marketplace: p.marketplace, label: p.label, image_url: p.image_url, created_at: p.created_at,
       latestScan: latest ? {
         id: latest.id, status: latest.status, requested_at: latest.requested_at, completed_at: latest.completed_at,
         findings: latest.scan_findings[0]?.count ?? 0,
@@ -66,7 +67,7 @@ export async function listProducts(supabase: SupabaseClient): Promise<Product[]>
   });
 }
 
-export async function addProduct(supabase: SupabaseClient, p: { asin: string; marketplace: Marketplace; label: string | null }) {
+export async function addProduct(supabase: SupabaseClient, p: { asin: string; marketplace: Marketplace; label: string | null; image_url: string | null }) {
   const { error } = await supabase.from('products').insert(p);
   if (error) throw error;
 }
@@ -126,3 +127,33 @@ export const LIVE_STATUSES = new Set(['active', 'trialing', 'past_due']);
 
 /** True when the database refused an insert because the plan's product limit is reached. */
 export const isPlanLimit = (e: unknown) => (e as { message?: string } | null)?.message?.includes('plan_limit_reached') ?? false;
+
+export async function setProductImage(supabase: SupabaseClient, id: string, imageUrl: string) {
+  const { error } = await supabase.from('products').update({ image_url: imageUrl }).eq('id', id);
+  if (error) throw error;
+}
+
+/** Days between two scans of the same product on the caller's plan. */
+export async function getScanInterval(supabase: SupabaseClient): Promise<number> {
+  const { data, error } = await supabase.rpc('my_scan_interval_days');
+  if (error) throw error;
+  return typeof data === 'number' ? data : 30;
+}
+
+/** When a scan was refused because the plan's frequency was reached: the date it becomes possible again. */
+export function scanTooSoonUntil(e: unknown): Date | null {
+  const err = e as { message?: string; details?: string } | null;
+  if (!err?.message?.includes('scan_too_soon')) return null;
+  const d = err.details ? new Date(err.details) : null;
+  return d && !Number.isNaN(d.getTime()) ? d : new Date(Date.now() + 86400000);
+}
+
+/** Starts the caller's requested scans on the server. Resolves quietly when scanning isn't configured yet. */
+export async function runScans(supabase: SupabaseClient): Promise<{ status: string; done?: number; failed?: number; waitingForImage?: number }> {
+  const { data, error } = await supabase.functions.invoke('scan/run', { body: {} });
+  if (error) throw error;
+  return data ?? { status: 'unknown' };
+}
+
+/** Only direct https image links are accepted (Google fetches them; our servers never download from Amazon). */
+export const isImageUrl = (u: string) => /^https:\/\/\S+$/i.test(u) && u.length <= 1000;

@@ -56,7 +56,15 @@ Plans: **Trial** (free, 1 product), **Starter** €19/month (10 products), **Pro
 - The pricing page shows a "test mode" notice until `VITE_STRIPE_TEST_MODE=false` is set in Vercel. **Only go live with a registered business (SIRET) and live keys.**
 - Tests: `node --test supabase/functions/billing/stripe.test.mjs`.
 
-## Running a scan for a seller
+## Automatic scans
+
+- Sellers can give each product a **main photo link** (`products.image_url`, https only). Google Vision fetches it directly; our servers never download from Amazon.
+- `supabase/functions/scan` (`POST /scan/run`, deployed): for the logged-in seller, claims each `requested` scan that has a photo link (atomic `requested → scanning`), runs Vision web detection, stores findings and marks it `done` (or `failed` with the error). Called by the site right after "Request a scan". Detection code is a verbatim copy of `poc/` (a test fails if they drift).
+- Needs the function secret `GOOGLE_VISION_API_KEY` (Supabase → Edge Functions → Secrets). Without it, scans stay `requested` and are run by hand as below.
+- Plan frequency is enforced in the database: one completed scan per product every 30 days (Trial, Starter) or 7 days (Pro). A request inside that window fails with `scan_too_soon` and the date it opens again.
+- Tests: `node --test supabase/functions/scan/scan.test.mjs`.
+
+## Running a scan for a seller (manual fallback)
 
 1. Supabase → Table editor → `scans`, filter `status = requested`. Note the scan `id` and the product's ASIN.
 2. Copy the listing's main image URL, then run the scanner: `node poc/scan.mjs <image URL> --own-asin <ASIN> --out poc/out`.
