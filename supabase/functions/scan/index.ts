@@ -1,4 +1,5 @@
-// POST /scan/run — runs the caller's requested scans with Google Cloud Vision web detection.
+// POST /scan/run  — runs the caller's requested scans (user token).
+// POST /scan/cron — runs everyone's queued scans; called hourly by pg_cron with the Vault secret in x-cron-secret.
 // Secret: GOOGLE_VISION_API_KEY (Supabase → Edge Functions → Secrets). Without it, scans stay "requested".
 import { findCopies } from './findcopies.js';
 
@@ -6,6 +7,7 @@ const env = (k: string) => Deno.env.get(k) ?? '';
 const SITE_URL = env('SITE_URL') || 'https://photosentry.vercel.app';
 const ALLOWED_ORIGINS = new Set([SITE_URL, 'http://localhost:5173', 'http://localhost:4174']);
 const MAX_PER_CALL = 5;
+const MAX_PER_CRON = 25;
 
 const cors = (req: Request) => {
   const origin = req.headers.get('origin') ?? '';
@@ -85,27 +87,44 @@ async function runOne(job: Job) {
   }
 }
 
+/** True only if the header matches the secret stored in Vault (checked in the database, never exposed). */
+async function cronAuthorized(req: Request): Promise<boolean> {
+  const candidate = req.headers.get('x-cron-secret');
+  if (!candidate || candidate.length < 32) return false;
+  return (await db('rpc/check_cron_secret', { method: 'POST', body: JSON.stringify({ candidate }) })) === true;
+}
+
+async function processJobs(filter: string, limit: number) {
+  const jobs: Job[] = await db(
+    `scans?${filter}status=eq.requested&select=id,user_id,product:products(asin,image_url)&order=requested_at.asc&limit=${limit}`,
+  );
+  const result = { status: 'ok', done: 0, failed: 0, waitingForImage: 0 };
+  for (const job of jobs) {
+    if (!job.product?.image_url) { result.waitingForImage++; continue; }
+    const r = await runOne(job);
+    if (r === 'done') result.done++;
+    if (r === 'failed') result.failed++;
+  }
+  return result;
+}
+
 Deno.serve(async (req: Request) => {
   if (req.method === 'OPTIONS') return new Response(null, { status: 204, headers: cors(req) });
   if (req.method !== 'POST') return json(req, 405, { error: 'method_not_allowed' });
+  const route = new URL(req.url).pathname.split('/').pop();
   try {
+    if (route === 'cron') {
+      if (!(await cronAuthorized(req))) return json(req, 401, { error: 'unauthorized' });
+      if (!env('GOOGLE_VISION_API_KEY')) return json(req, 200, { status: 'not_configured' });
+      return json(req, 200, await processJobs('', MAX_PER_CRON));
+    }
+    if (route !== 'run') return json(req, 404, { error: 'not_found' });
     const user = await currentUser(req);
     if (!user) return json(req, 401, { error: 'not_signed_in' });
     if (!env('GOOGLE_VISION_API_KEY')) return json(req, 200, { status: 'not_configured' });
-
-    const jobs: Job[] = await db(
-      `scans?user_id=eq.${encodeURIComponent(user.id)}&status=eq.requested&select=id,user_id,product:products(asin,image_url)&order=requested_at.asc&limit=${MAX_PER_CALL}`,
-    );
-    const result = { status: 'ok', done: 0, failed: 0, waitingForImage: 0 };
-    for (const job of jobs) {
-      if (!job.product?.image_url) { result.waitingForImage++; continue; }
-      const r = await runOne(job);
-      if (r === 'done') result.done++;
-      if (r === 'failed') result.failed++;
-    }
-    return json(req, 200, result);
+    return json(req, 200, await processJobs(`user_id=eq.${encodeURIComponent(user.id)}&`, MAX_PER_CALL));
   } catch (e) {
-    console.error('scan worker', e);
+    console.error('scan worker', route, e);
     return json(req, 500, { error: 'server_error' });
   }
 });

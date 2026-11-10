@@ -159,7 +159,7 @@ const fr = {
     confirmDelete: 'Supprimer ce produit et ses rapports ?',
     neverScanned: 'Jamais scanné',
     copies: (n: number) => (n === 0 ? 'aucune copie' : n === 1 ? '1 copie' : `${n} copies`),
-    betaNote: 'Avec le lien de la photo, le scan se lance tout seul et le rapport arrive en quelques secondes. Sans lui, nous le faisons à la main sous 48 h.',
+    betaNote: 'Ajoutez le lien de la photo : vos produits sont ensuite scannés automatiquement, et vous pouvez lancer un scan à tout moment dans la limite de votre offre.',
   },
   pricing: {
     title: 'Des tarifs simples',
@@ -178,9 +178,9 @@ const fr = {
     cancelled: 'Paiement annulé. Aucun montant n’a été débité.',
     secure: 'Paiement sécurisé par Stripe. Nous ne voyons jamais votre numéro de carte.',
     plans: {
-      free: { name: 'Essai', price: '0 €', desc: 'Pour tester sur un produit.', features: ['1 produit suivi', '1 scan par mois', 'Rapport avec preuves'] },
-      starter: { name: 'Starter', price: '5 €', desc: 'Pour une petite boutique.', features: ['Jusqu’à 10 produits', '1 scan par produit et par mois', 'Rapports avec preuves', 'Support par e-mail'] },
-      pro: { name: 'Pro', price: '15 €', desc: 'Pour un catalogue qui grandit.', features: ['Jusqu’à 50 produits', '1 scan par produit et par semaine', 'Rapports avec preuves', 'Support prioritaire'] },
+      free: { name: 'Essai', price: '0 €', desc: 'Pour tester sur un produit.', features: ['1 produit suivi', 'Scan automatique chaque mois', 'Rapport avec preuves'] },
+      starter: { name: 'Starter', price: '5 €', desc: 'Pour une petite boutique.', features: ['Jusqu’à 10 produits', 'Scan automatique chaque mois', 'Rapports avec preuves', 'Support par e-mail'] },
+      pro: { name: 'Pro', price: '15 €', desc: 'Pour un catalogue qui grandit.', features: ['Jusqu’à 50 produits', 'Scan automatique chaque semaine', 'Rapports avec preuves', 'Support prioritaire'] },
     },
     faq: [
       { q: 'Puis-je annuler à tout moment ?', a: 'Oui. L’abonnement s’arrête à la fin du mois payé, depuis « Gérer l’abonnement ».' },
@@ -195,7 +195,9 @@ const fr = {
     save: 'Enregistrer',
     tooSoon: (date: string) => `Prochain scan possible le ${date} avec votre offre.`,
     running: 'Scan en cours…',
-    interval: (days: number): string => (days <= 7 ? '1 scan par produit et par semaine' : '1 scan par produit et par mois'),
+    interval: (days: number): string => (days <= 7 ? 'Scan automatique chaque semaine' : 'Scan automatique chaque mois'),
+    nextAuto: (date: string) => `Prochain scan automatique : ${date}`,
+    autoSoon: 'Scan automatique dans les prochaines 24 h',
   },
   plan: {
     title: 'Votre offre',
@@ -421,7 +423,7 @@ const en: Dict = {
     confirmDelete: 'Delete this product and its reports?',
     neverScanned: 'Never scanned',
     copies: (n: number) => (n === 0 ? 'no copies' : n === 1 ? '1 copy' : `${n} copies`),
-    betaNote: 'With the photo link, the scan runs on its own and the report arrives in seconds. Without it, we run it by hand within 48 hours.',
+    betaNote: 'Add the photo link: your products are then scanned automatically, and you can run a scan anytime within your plan’s limit.',
   },
   pricing: {
     title: 'Simple pricing',
@@ -440,9 +442,9 @@ const en: Dict = {
     cancelled: 'Payment cancelled. You haven’t been charged.',
     secure: 'Secure payment by Stripe. We never see your card number.',
     plans: {
-      free: { name: 'Trial', price: '€0', desc: 'To try it on one product.', features: ['1 product tracked', '1 scan per month', 'Report with evidence'] },
-      starter: { name: 'Starter', price: '€5', desc: 'For a small store.', features: ['Up to 10 products', '1 scan per product per month', 'Reports with evidence', 'Email support'] },
-      pro: { name: 'Pro', price: '€15', desc: 'For a growing catalogue.', features: ['Up to 50 products', '1 scan per product per week', 'Reports with evidence', 'Priority support'] },
+      free: { name: 'Trial', price: '€0', desc: 'To try it on one product.', features: ['1 product tracked', 'Automatic scan every month', 'Report with evidence'] },
+      starter: { name: 'Starter', price: '€5', desc: 'For a small store.', features: ['Up to 10 products', 'Automatic scan every month', 'Reports with evidence', 'Email support'] },
+      pro: { name: 'Pro', price: '€15', desc: 'For a growing catalogue.', features: ['Up to 50 products', 'Automatic scan every week', 'Reports with evidence', 'Priority support'] },
     },
     faq: [
       { q: 'Can I cancel anytime?', a: 'Yes. Your plan stops at the end of the paid month, from “Manage subscription”.' },
@@ -457,7 +459,9 @@ const en: Dict = {
     save: 'Save',
     tooSoon: (date: string) => `Next scan possible on ${date} on your plan.`,
     running: 'Scanning…',
-    interval: (days: number) => (days <= 7 ? '1 scan per product per week' : '1 scan per product per month'),
+    interval: (days: number) => (days <= 7 ? 'Automatic scan every week' : 'Automatic scan every month'),
+    nextAuto: (date: string) => `Next automatic scan: ${date}`,
+    autoSoon: 'Automatic scan within 24 h',
   },
   plan: {
     title: 'Your plan',

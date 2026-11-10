@@ -285,6 +285,16 @@ function Products({ supabase }: { supabase: SupabaseClient }) {
                           </>
                         ) : <span className="text-neutral-400">{t.app.neverScanned}</span>}
                       </div>
+                      {p.image_url && !p.hasOpenScan && (
+                        <p className="mt-2 flex items-center gap-1.5 text-xs text-neutral-500">
+                          <Icon name="clock" className="h-3.5 w-3.5" />
+                          {(() => {
+                            const last = p.latestScan?.status === 'done' ? p.latestScan.completed_at : null;
+                            const next = last ? new Date(new Date(last).getTime() + scanInterval * 86400000) : null;
+                            return next && next.getTime() > Date.now() ? t.scanUi.nextAuto(dateFmt.format(next)) : t.scanUi.autoSoon;
+                          })()}
+                        </p>
+                      )}
                       {!p.image_url && (
                         <form onSubmit={e => { e.preventDefault(); saveImage(p.id); }} className="mt-3 flex max-w-md gap-2">
                           <input type="url" aria-label={t.scanUi.imageLabel} placeholder={t.scanUi.addImage}

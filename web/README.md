@@ -61,6 +61,7 @@ Plans: **Trial** (free, 1 product), **Starter** €5/month (10 products), **Pro*
 - Sellers can give each product a **main photo link** (`products.image_url`, https only). Google Vision fetches it directly; our servers never download from Amazon.
 - `supabase/functions/scan` (`POST /scan/run`, deployed): for the logged-in seller, claims each `requested` scan that has a photo link (atomic `requested → scanning`), runs Vision web detection, stores findings and marks it `done` (or `failed` with the error). Called by the site right after "Request a scan". Detection code is a verbatim copy of `poc/` (a test fails if they drift).
 - Needs the function secret `GOOGLE_VISION_API_KEY` (Supabase → Edge Functions → Secrets). Without it, scans stay `requested` and are run by hand as below.
+- **Recurring scans:** a daily job queues due scans and an hourly job runs the queue through `POST /scan/cron`, authenticated with a secret kept in Supabase Vault (see `supabase/migrations/README.md`).
 - Plan frequency is enforced in the database: one completed scan per product every 30 days (Trial, Starter) or 7 days (Pro). A request inside that window fails with `scan_too_soon` and the date it opens again.
 - Tests: `node --test supabase/functions/scan/scan.test.mjs`.
 
