@@ -7,6 +7,9 @@ import { StatusBadge } from '../components/StatusBadge';
 import { Icon } from '../components/Icon';
 import { getReport, type ScanReport } from '../lib/db';
 import { useTitle } from '../lib/useTitle';
+import { buildTakedown, downloadText, findingsCsv } from '../lib/takedown';
+
+type Finding = ScanReport['findings'][number];
 
 export default function Report() {
   return <AppShell>{ctx => <ReportView supabase={ctx.supabase} />}</AppShell>;
@@ -44,6 +47,8 @@ function ReportView({ supabase }: { supabase: SupabaseClient }) {
 function ReportBody({ report }: { report: ScanReport }) {
   const { t, lang } = useLang();
   const [filter, setFilter] = useState<Filter>('all');
+  const [takedownFor, setTakedownFor] = useState<Finding | null>(null);
+  const foundAt = new Date(report.completed_at ?? report.requested_at);
   const dateFmt = new Intl.DateTimeFormat(lang === 'fr' ? 'fr-FR' : 'en-GB', { dateStyle: 'medium', timeStyle: 'short' });
 
   const exact = report.findings.filter(f => f.match === 'full').length;
@@ -123,6 +128,10 @@ function ReportBody({ report }: { report: ScanReport }) {
             <div className="space-y-3">
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <h2 className="text-sm font-semibold uppercase tracking-wider text-neutral-500">{t.ui.findings}</h2>
+                <button type="button" onClick={() => downloadText(`photosentry-${report.product.asin}-evidence.csv`, findingsCsv(report.findings, foundAt), 'text/csv;charset=utf-8')}
+                  className="inline-flex items-center gap-1.5 rounded-full border border-neutral-300 px-3 py-1.5 text-sm font-medium hover:border-ink">
+                  {t.takedown.csv}
+                </button>
                 <div role="tablist" className="flex rounded-lg bg-neutral-100 p-1">
                   {filters.map(f => (
                     <button key={f.key} type="button" role="tab" aria-selected={filter === f.key} onClick={() => setFilter(f.key)}
@@ -155,6 +164,12 @@ function ReportBody({ report }: { report: ScanReport }) {
                             {image && <> · <a href={image} target="_blank" rel="noopener noreferrer nofollow" className="hover:underline">{t.report.image}</a></>}
                           </span>
                         </span>
+                        {page && (
+                          <button type="button" onClick={() => setTakedownFor(f)}
+                            className="w-fit shrink-0 rounded-full border border-neutral-300 px-3 py-1 text-xs font-semibold hover:border-ink">
+                            {t.takedown.open}
+                          </button>
+                        )}
                       </li>
                     );
                   })}
@@ -175,6 +190,66 @@ function ReportBody({ report }: { report: ScanReport }) {
           )}
         </>
       )}
+      {takedownFor && <TakedownPanel report={report} finding={takedownFor} foundAt={foundAt} onClose={() => setTakedownFor(null)} />}
     </>
+  );
+}
+
+function TakedownPanel({ report, finding, foundAt, onClose }: { report: ScanReport; finding: Finding; foundAt: Date; onClose: () => void }) {
+  const { t, lang } = useLang();
+  const td = t.takedown;
+  const [sellerName, setSellerName] = useState('');
+  const [copied, setCopied] = useState(false);
+  const { subject, body, formUrl } = buildTakedown({ lang, platform: finding.platform, finding, product: report.product, sellerName, foundAt });
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [onClose]);
+
+  const copy = async () => {
+    try {
+      await navigator.clipboard.writeText(`${subject}\n\n${body}`);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (e) { console.error('Copy failed', e); }
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 p-0 sm:items-center sm:p-4" onClick={onClose}>
+      <div role="dialog" aria-modal="true" aria-labelledby="takedown-title" onClick={e => e.stopPropagation()}
+        className="flex max-h-[92vh] w-full max-w-2xl flex-col overflow-hidden rounded-t-2xl bg-white sm:rounded-2xl">
+        <div className="flex items-start justify-between gap-4 border-b border-neutral-100 p-5">
+          <div className="min-w-0">
+            <h2 id="takedown-title" className="text-lg font-semibold">{td.title} · {finding.platform}</h2>
+            <p className="mt-1 text-sm text-neutral-600">{td.intro}</p>
+          </div>
+          <button type="button" onClick={onClose} aria-label={td.close} className="shrink-0 rounded-full px-2 text-2xl leading-none text-neutral-500 hover:text-ink">×</button>
+        </div>
+        <div className="space-y-4 overflow-y-auto p-5">
+          <label className="block text-sm font-medium">
+            {td.name}
+            <input value={sellerName} onChange={e => setSellerName(e.target.value)} maxLength={120}
+              className="mt-1 w-full rounded-lg border border-neutral-300 px-3 py-2 font-normal focus:border-ink focus:outline-none" />
+          </label>
+          <div>
+            <p className="text-sm font-medium">{td.subject}</p>
+            <p className="mt-1 rounded-lg bg-neutral-50 px-3 py-2 text-sm">{subject}</p>
+          </div>
+          <textarea readOnly value={body} rows={14} aria-label={td.title}
+            className="w-full resize-y rounded-lg border border-neutral-200 bg-neutral-50 p-3 font-mono text-xs leading-relaxed" />
+          {formUrl
+            ? <a href={formUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-sm font-medium underline underline-offset-4">{td.amazonForm}<Icon name="external" className="h-3.5 w-3.5" /></a>
+            : <p className="text-sm text-neutral-600">{td.otherForm(finding.platform)}</p>}
+          <p className="text-xs text-neutral-500">{td.disclaimer}</p>
+        </div>
+        <div className="flex flex-wrap justify-end gap-2 border-t border-neutral-100 p-4">
+          <button type="button" onClick={() => downloadText(`takedown-${report.product.asin}-${finding.platform.toLowerCase().replace(/[^a-z0-9]+/g, '-')}.txt`, `${subject}\n\n${body}\n`)}
+            className="rounded-full border border-neutral-300 px-4 py-2 text-sm font-medium hover:border-ink">{td.download}</button>
+          <button type="button" onClick={copy} className="rounded-full bg-ink px-4 py-2 text-sm font-medium text-white hover:bg-neutral-800">{copied ? td.copied : td.copy}</button>
+        </div>
+      </div>
+    </div>
   );
 }

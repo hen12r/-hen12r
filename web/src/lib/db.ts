@@ -38,7 +38,7 @@ export interface ScanReport {
   requested_at: string;
   completed_at: string | null;
   similar_count: number | null;
-  product: { asin: string; marketplace: Marketplace; label: string | null };
+  product: { asin: string; marketplace: Marketplace; label: string | null; image_url: string | null };
   findings: Finding[];
 }
 
@@ -85,7 +85,7 @@ export async function requestScan(supabase: SupabaseClient, productId: string) {
 export async function getReport(supabase: SupabaseClient, scanId: string): Promise<ScanReport | null> {
   const { data, error } = await supabase
     .from('scans')
-    .select('id, status, requested_at, completed_at, similar_count, product:products(asin, marketplace, label), findings:scan_findings(id, match, platform, page_url, title, image_url, asin)')
+    .select('id, status, requested_at, completed_at, similar_count, product:products(asin, marketplace, label, image_url), findings:scan_findings(id, match, platform, page_url, title, image_url, asin)')
     .eq('id', scanId)
     .maybeSingle();
   if (error) throw error;
