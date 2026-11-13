@@ -12,3 +12,6 @@ Scheduled jobs (pg_cron):
 
 Pending cleanup (needs the owner to confirm the drop in Supabase): move `pg_net` out of the public schema
 (`drop extension pg_net; create extension pg_net with schema extensions;`).
+
+Pending (needs the owner to confirm in Supabase): `close_public_scan_request_form`, the public free-scan form was removed from the site:
+`drop policy if exists "anon can submit a scan request" on public.scan_requests; revoke insert on public.scan_requests from anon;`

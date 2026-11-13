@@ -9,14 +9,6 @@ export const GOOGLE_AUTH_ENABLED = import.meta.env.VITE_GOOGLE_AUTH === 'true';
 export const MARKETPLACES = ['amazon.fr', 'amazon.com', 'amazon.de', 'amazon.co.uk', 'amazon.es', 'amazon.it'] as const;
 export type Marketplace = (typeof MARKETPLACES)[number];
 
-export interface ScanRequest {
-  email: string;
-  asin: string;
-  marketplace: Marketplace;
-  locale: 'fr' | 'en';
-  consent: true;
-}
-
 let client: Promise<SupabaseClient> | null = null;
 
 /**
@@ -28,11 +20,4 @@ export function getClient(): Promise<SupabaseClient> {
   client ??= import('@supabase/supabase-js').then(({ createClient }) =>
     createClient(url, key, { auth: { persistSession: true, detectSessionInUrl: true, flowType: 'pkce' } }));
   return client;
-}
-
-/** Inserts a free-scan request from the public form. No `.select()`: visitors have insert-only access. */
-export async function submitScanRequest(req: ScanRequest): Promise<void> {
-  const supabase = await getClient();
-  const { error } = await supabase.from('scan_requests').insert(req);
-  if (error) throw error;
 }

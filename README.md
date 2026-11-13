@@ -6,11 +6,13 @@ A SaaS for Amazon sellers: it finds competitors who reuse a seller's product pho
 
 | Folder | What it is |
 | --- | --- |
-| `web/` | Bilingual (FR/EN) landing page with a free-scan request form. Requests go to Supabase. |
-| `poc/` | Proof-of-concept scanner: reverse image search via Google Cloud Vision, per-platform report. |
+| `web/` | FR/EN site (Vite + React): landing, pricing, magic-link accounts, dashboard, scan reports with takedown requests and CSV evidence, account deletion, privacy and legal pages. Deployed on Vercel. |
+| `supabase/functions/` | Edge Functions: `scan` (Google Cloud Vision reverse image search, on demand and by cron), `billing` (Stripe Checkout, portal, webhook), `account` (self-service deletion). |
+| `supabase/migrations/` | List of the database changes and cron jobs applied to the project. |
+| `poc/` | Original command-line scanner; `scan` reuses its matching code. |
 
 ## Status
 
-Validation phase. The landing page collects free-scan requests from real sellers; scans are run by hand with `poc/` and reports are emailed. The SaaS app (accounts, dashboard, automatic monitoring) comes only if sellers sign up and the scans find real copies.
+Built end to end; waiting on the keys. To go live: set `GOOGLE_VISION_API_KEY`, `STRIPE_SECRET_KEY` and `STRIPE_WEBHOOK_SECRET` in Supabase → Edge Functions → Secrets, configure the Stripe webhook and customer portal, and fill in the publisher details in `web/src/brand.ts` (`LEGAL`).
 
 See `web/README.md` and `poc/README.md` for setup.

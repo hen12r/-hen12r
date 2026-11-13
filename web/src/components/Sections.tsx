@@ -5,6 +5,9 @@ import { Icon, type IconName } from './Icon';
 
 export const container = 'mx-auto w-full max-w-6xl px-4 sm:px-6';
 
+/** Where every "start free" button goes; /login forwards signed-in users straight to /app. */
+export const START_HREF = '/login?next=/app';
+
 export function Logo({ inverted = false }: { inverted?: boolean }) {
   return (
     <span className={`flex items-center gap-2 font-semibold tracking-tight ${inverted ? 'text-white' : 'text-ink'}`}>
@@ -51,9 +54,9 @@ export function Header({ t, lang, onToggleLang }: { t: Dict; lang: Lang; onToggl
           <Link to={signedIn ? '/app' : '/login'} className="rounded-md px-2.5 py-1.5 text-sm font-semibold text-neutral-600 hover:bg-neutral-100 hover:text-ink">
             {signedIn ? t.auth.account : t.auth.login}
           </Link>
-          <a href="/#scan" className="hidden rounded-full bg-ink px-4 py-2 text-sm font-medium text-white hover:bg-neutral-800 sm:inline-block">
+          <Link to={START_HREF} className="hidden rounded-full bg-ink px-4 py-2 text-sm font-medium text-white hover:bg-neutral-800 sm:inline-block">
             {t.nav.cta}
-          </a>
+          </Link>
         </div>
       </div>
     </header>
@@ -134,9 +137,9 @@ export function Hero({ t }: { t: Dict }) {
         <h1 className="mx-auto mt-8 max-w-4xl text-5xl font-semibold tracking-[-0.04em] text-balance sm:text-6xl lg:text-7xl">{t.hero.title}</h1>
         <p className="mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-neutral-500 sm:text-xl">{t.hero.subtitle}</p>
         <div className="mt-10 flex flex-col justify-center gap-3 sm:flex-row">
-          <a href="#scan" className="inline-flex items-center justify-center gap-2 rounded-full bg-ink px-7 py-3.5 font-medium text-white hover:bg-neutral-800">
+          <Link to={START_HREF} className="inline-flex items-center justify-center gap-2 rounded-full bg-ink px-7 py-3.5 font-medium text-white hover:bg-neutral-800">
             {t.hero.cta}<Icon name="arrow" className="h-4 w-4" />
-          </a>
+          </Link>
           <a href="#example" className="inline-flex items-center justify-center rounded-full border border-neutral-300 px-7 py-3.5 font-medium text-ink hover:border-ink">
             {t.hero.secondary}
           </a>
@@ -257,6 +260,21 @@ export function Platforms({ t }: { t: Dict }) {
   );
 }
 
+export function StartCta({ t }: { t: Dict }) {
+  return (
+    <section id="start" className={`${container} scroll-mt-16 py-12`}>
+      <div className="rounded-2xl bg-ink px-6 py-14 text-center text-white sm:px-12 sm:py-20">
+        <h2 className="mx-auto max-w-2xl text-3xl font-semibold tracking-[-0.03em] text-balance sm:text-4xl">{t.start.title}</h2>
+        <p className="mx-auto mt-4 max-w-xl leading-relaxed text-neutral-300">{t.start.body}</p>
+        <Link to={START_HREF} className="mt-8 inline-flex items-center justify-center gap-2 rounded-full bg-white px-7 py-3.5 font-medium text-ink hover:bg-neutral-200">
+          {t.start.cta}<Icon name="arrow" className="h-4 w-4" />
+        </Link>
+        <p className="mt-4 text-sm text-neutral-400">{t.start.note}</p>
+      </div>
+    </section>
+  );
+}
+
 export function Faq({ t }: { t: Dict }) {
   return (
     <section id="faq" className={`${container} scroll-mt-16 py-24 sm:py-32`}>
@@ -294,7 +312,7 @@ export function Footer({ t }: { t: Dict }) {
             <li><a href="/#example" className={linkClass}>{t.nav.example}</a></li>
             <li><a href="/#faq" className={linkClass}>{t.nav.faq}</a></li>
             <li><Link to="/pricing" className={linkClass}>{t.nav.pricing}</Link></li>
-            <li><a href="/#scan" className={linkClass}>{t.nav.cta}</a></li>
+            <li><Link to={START_HREF} className={linkClass}>{t.nav.cta}</Link></li>
           </ul>
         </div>
         <div>
@@ -308,6 +326,7 @@ export function Footer({ t }: { t: Dict }) {
           <h2 className="font-semibold text-white">{t.footer.legal}</h2>
           <ul className="mt-4 space-y-2.5">
             <li><Link to="/privacy" className={linkClass}>{t.footer.privacyPolicy}</Link></li>
+            <li><Link to="/legal" className={linkClass}>{t.footer.legalNotice}</Link></li>
             <li><a href={`mailto:${CONTACT_EMAIL}`} className={linkClass}>{t.footer.contact}</a></li>
           </ul>
         </div>
