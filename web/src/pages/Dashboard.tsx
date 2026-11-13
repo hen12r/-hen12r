@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState, type FormEvent } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { useLang } from '../lang';
 import { AppShell, Card, Spinner } from '../components/AppShell';
@@ -9,6 +9,7 @@ import { MARKETPLACES, type Marketplace } from '../lib/supabase';
 import { useTitle } from '../lib/useTitle';
 import { addProduct, deleteProduct, getProductLimit, getScanInterval, getSubscription, isDuplicate, isImageUrl, isPlanLimit, listProducts, LIVE_STATUSES, requestScan, runScans, scanTooSoonUntil, setProductImage, type Product, type Subscription } from '../lib/db';
 import { BillingError, openPortal } from '../lib/billing';
+import { AccountError, deleteAccount } from '../lib/account';
 
 const ASIN_RE = /^[A-Z0-9]{10}$/;
 const inputClass = 'mt-1.5 block w-full rounded-lg border border-neutral-300 bg-white px-3.5 py-2.5 text-base text-ink outline-none focus:border-ink focus:ring-2 focus:ring-ink/20 aria-[invalid=true]:border-red-500';
@@ -329,6 +330,50 @@ function Products({ supabase }: { supabase: SupabaseClient }) {
           </Card>
         </section>
       )}
+
+      {products && <DeleteAccount supabase={supabase} />}
     </div>
+  );
+}
+
+function DeleteAccount({ supabase }: { supabase: SupabaseClient }) {
+  const { t } = useLang();
+  const a = t.account;
+  const navigate = useNavigate();
+  const [typed, setTyped] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const submit = async (e: FormEvent) => {
+    e.preventDefault();
+    if (typed.trim().toUpperCase() !== a.word) return;
+    setBusy(true);
+    setError(null);
+    try {
+      await deleteAccount(supabase);
+      navigate('/', { replace: true, state: { accountDeleted: true } });
+    } catch (err) {
+      console.error('Delete account failed', err);
+      setError(err instanceof AccountError && err.code === 'subscription_active' ? a.subscriptionActive : a.error);
+      setBusy(false);
+    }
+  };
+
+  return (
+    <details className="group rounded-xl border border-neutral-200 bg-white">
+      <summary className="cursor-pointer list-none px-5 py-4 text-sm font-medium text-neutral-500 hover:text-ink">{a.title}</summary>
+      <form onSubmit={submit} className="space-y-3 border-t border-neutral-100 px-5 py-4">
+        <p className="text-sm text-neutral-600">{a.body}</p>
+        <label className="block text-sm font-medium">
+          {a.prompt(a.word)}
+          <input value={typed} onChange={e => setTyped(e.target.value)} autoComplete="off" spellCheck={false} className={`${inputClass} sm:max-w-xs`} />
+        </label>
+        {error && <p role="alert" className="text-sm text-red-700">{error}</p>}
+        <button type="submit" disabled={busy || typed.trim().toUpperCase() !== a.word}
+          className="rounded-lg bg-red-700 px-4 py-2 text-sm font-semibold text-white hover:bg-red-800 disabled:cursor-not-allowed disabled:opacity-40">
+          {busy ? a.deleting : a.button}
+        </button>
+      </form>
+    </details>
   );
 }
