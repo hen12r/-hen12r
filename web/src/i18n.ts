@@ -5,7 +5,7 @@ const fr = {
   hero: {
     eyebrow: 'Pour les vendeurs Amazon',
     title: 'Découvrez qui utilise vos photos produit.',
-    subtitle: 'PhotoSentry cherche vos photos Amazon sur Amazon, Temu, AliExpress, eBay et le reste du web, puis vous remet les preuves pour faire retirer les copies.',
+    subtitle: 'PhotoSentry cherche vos photos Amazon partout où Google les a vues : autres fiches Amazon, eBay, boutiques en ligne, marketplaces. Puis il vous prépare les preuves et la demande de retrait.',
     cta: 'Commencer gratuitement',
     secondary: 'Voir un exemple de rapport',
     note: '1 produit gratuit, sans carte bancaire.',
@@ -15,7 +15,7 @@ const fr = {
     previewCopies: 'copies',
     previewPlatforms: 'plateformes',
     previewExact: 'exactes',
-    stripLabel: 'Nous cherchons sur',
+    stripLabel: 'Sur tout le web, dont',
   },
   problem: {
     title: 'Vos photos ont un prix. Les copieurs le savent.',
@@ -45,10 +45,10 @@ const fr = {
   platforms: {
     title: 'Où nous cherchons',
     body: 'Amazon (toutes les marketplaces), Temu, AliExpress, Alibaba, eBay, Walmart, Etsy, Shein, Cdiscount, les boutiques Shopify et le reste du web.',
-    caveat: 'Honnêtement : nous trouvons les pages que les moteurs de recherche ont indexées. Une copie récente ou mal indexée peut nous échapper au premier scan.',
+    caveat: 'Honnêtement : nous trouvons les pages que Google a indexées. La couverture est bonne pour les boutiques en ligne, eBay et une partie d’Amazon ; elle est partielle pour Temu et AliExpress, que Google indexe mal. Une copie récente peut nous échapper au premier scan : c’est pour cela que nous rescannons automatiquement.',
   },
   form: {
-    errorAsin: 'Un ASIN fait exactement 10 lettres ou chiffres (ex. B09NNLSTGQ).',
+    errorAsin: 'Entrez un ASIN (10 lettres ou chiffres, ex. B09NNLSTGQ) ou le lien complet de votre page produit Amazon.',
   },
   start: {
     title: 'Protégez votre premier produit gratuitement',
@@ -61,7 +61,7 @@ const fr = {
     items: [
       { q: 'Est-ce légal ?', a: 'Oui. Nous comparons des images publiques, comme le ferait une recherche d’image sur Google. Nous n’accédons à aucun compte et ne contournons aucune protection.' },
       { q: 'Que faire quand je trouve une copie ?', a: 'Si vous êtes l’auteur des photos, vous pouvez signaler une violation de droit d’auteur via le formulaire « Signaler une infraction » d’Amazon, ou contacter la plateforme concernée. Depuis le rapport, PhotoSentry prépare pour chaque copie un texte de demande de retrait prêt à envoyer, avec les liens à fournir.' },
-      { q: 'Quelles plateformes sont couvertes ?', a: 'Toutes celles que les moteurs de recherche indexent : Amazon, Temu, AliExpress, eBay, Walmart, Etsy, les boutiques Shopify, etc. La couverture de Temu et AliExpress dépend de leur indexation.' },
+      { q: 'Quelles plateformes sont couvertes ?', a: 'Toutes les pages que Google a indexées : autres fiches Amazon, eBay, Walmart, Etsy, boutiques Shopify, sites marchands… Pour Temu et AliExpress, Google n’indexe qu’une partie des fiches : nous trouvons celles-là, pas les autres.' },
       { q: 'Combien ça coûte ?', a: 'Votre premier produit est gratuit, sans carte bancaire. Pour suivre plus de produits : Starter à 5 €/mois (10 produits) ou Pro à 15 €/mois (50 produits), prix de lancement, sans engagement.' },
     ],
   },
@@ -147,7 +147,7 @@ const fr = {
     title: 'Mes produits',
     signedInAs: 'Connecté en tant que',
     addTitle: 'Ajouter un produit',
-    asin: 'ASIN',
+    asin: 'ASIN ou lien Amazon',
     marketplace: 'Marketplace',
     label: 'Nom (facultatif)',
     labelPlaceholder: 'ex. Lampe coucher de soleil',
@@ -195,7 +195,16 @@ const fr = {
   },
   scanUi: {
     imageLabel: 'Lien de la photo principale (facultatif)',
-    imageHelp: 'Clic droit sur la photo de votre fiche Amazon → « Copier l’adresse de l’image ». Nécessaire pour le scan automatique.',
+    imageHelp: 'Nécessaire pour scanner : c’est cette photo que nous cherchons sur le web.',
+    linkRead: (asin: string, mp: string) => `Lien reconnu : ASIN ${asin} sur ${mp}.`,
+    linkOtherMarket: (asin: string, mp: string) => `ASIN ${asin} reconnu. ${mp} n’est pas encore dans la liste : choisissez la marketplace la plus proche.`,
+    shortLink: 'Les liens courts (amzn.eu, a.co…) ne peuvent pas être lus. Ouvrez-le, puis copiez l’adresse complète de la page (elle contient /dp/) ou l’ASIN.',
+    helpTitle: 'Comment trouver le lien de la photo ?',
+    helpSteps: [
+      'Ouvrez votre page produit sur Amazon.',
+      'Sur ordinateur : clic droit sur la grande photo → « Copier l’adresse de l’image ». Sur téléphone : appui long sur la photo → « Copier le lien de l’image ».',
+      'Collez-le ici. Il ressemble à :',
+    ],
     imageError: 'Collez un lien d’image qui commence par https://',
     addImage: 'Ajouter le lien de la photo pour activer le scan automatique',
     save: 'Enregistrer',
@@ -301,7 +310,7 @@ const en: Dict = {
   hero: {
     eyebrow: 'For Amazon sellers',
     title: 'Find out who is using your product photos.',
-    subtitle: 'PhotoSentry searches for your Amazon photos on Amazon, Temu, AliExpress, eBay and the rest of the web, then hands you the evidence to get the copies taken down.',
+    subtitle: 'PhotoSentry looks for your Amazon photos wherever Google has seen them: other Amazon listings, eBay, online shops, marketplaces. Then it prepares the evidence and the takedown request for you.',
     cta: 'Start for free',
     secondary: 'See an example report',
     note: '1 product free, no credit card.',
@@ -311,7 +320,7 @@ const en: Dict = {
     previewCopies: 'copies',
     previewPlatforms: 'platforms',
     previewExact: 'exact',
-    stripLabel: 'We search',
+    stripLabel: 'Across the web, including',
   },
   problem: {
     title: 'Your photos cost money. Copycats know it.',
@@ -341,10 +350,10 @@ const en: Dict = {
   platforms: {
     title: 'Where we look',
     body: 'Amazon (every marketplace), Temu, AliExpress, Alibaba, eBay, Walmart, Etsy, Shein, Cdiscount, Shopify stores and the rest of the web.',
-    caveat: 'To be honest: we find pages that search engines have indexed. A recent or poorly indexed copy can slip past the first scan.',
+    caveat: 'To be honest: we find pages that Google has indexed. Coverage is good for online shops, eBay and part of Amazon; it is partial for Temu and AliExpress, which Google indexes poorly. A recent copy can slip past the first scan, which is why we rescan automatically.',
   },
   form: {
-    errorAsin: 'An ASIN is exactly 10 letters or digits (e.g. B09NNLSTGQ).',
+    errorAsin: 'Enter an ASIN (10 letters or digits, e.g. B09NNLSTGQ) or the full link to your Amazon product page.',
   },
   start: {
     title: 'Protect your first product for free',
@@ -357,7 +366,7 @@ const en: Dict = {
     items: [
       { q: 'Is this legal?', a: 'Yes. We compare public images, the same way a Google image search does. We don’t access any account or bypass any protection.' },
       { q: 'What do I do when I find a copy?', a: 'If you own the photos, you can report a copyright infringement through Amazon’s “Report Infringement” form, or contact the platform involved. From the report, PhotoSentry drafts a ready-to-send takedown request for each copy, with the links to provide.' },
-      { q: 'Which platforms are covered?', a: 'Any that search engines index: Amazon, Temu, AliExpress, eBay, Walmart, Etsy, Shopify stores and more. Coverage of Temu and AliExpress depends on how well they’re indexed.' },
+      { q: 'Which platforms are covered?', a: 'Any page Google has indexed: other Amazon listings, eBay, Walmart, Etsy, Shopify stores, online shops… For Temu and AliExpress, Google indexes only part of the listings: we find those, not the rest.' },
       { q: 'How much does it cost?', a: 'Your first product is free, no credit card needed. To track more: Starter at €5/month (10 products) or Pro at €15/month (50 products), launch pricing, cancel anytime.' },
     ],
   },
@@ -443,7 +452,7 @@ const en: Dict = {
     title: 'My products',
     signedInAs: 'Logged in as',
     addTitle: 'Add a product',
-    asin: 'ASIN',
+    asin: 'ASIN or Amazon link',
     marketplace: 'Marketplace',
     label: 'Name (optional)',
     labelPlaceholder: 'e.g. Sunset lamp',
@@ -491,7 +500,16 @@ const en: Dict = {
   },
   scanUi: {
     imageLabel: 'Main photo link (optional)',
-    imageHelp: 'Right-click the photo on your Amazon listing → “Copy image address”. Needed for automatic scans.',
+    imageHelp: 'Needed to scan: this is the photo we look for across the web.',
+    linkRead: (asin: string, mp: string) => `Link recognised: ASIN ${asin} on ${mp}.`,
+    linkOtherMarket: (asin: string, mp: string) => `ASIN ${asin} recognised. ${mp} isn’t in the list yet: pick the closest marketplace.`,
+    shortLink: 'Short links (amzn.eu, a.co…) can’t be read. Open it, then copy the full page address (it contains /dp/) or the ASIN.',
+    helpTitle: 'How do I find the photo link?',
+    helpSteps: [
+      'Open your product page on Amazon.',
+      'On a computer: right-click the large photo → “Copy image address”. On a phone: long-press the photo → “Copy image link”.',
+      'Paste it here. It looks like:',
+    ],
     imageError: 'Paste an image link that starts with https://',
     addImage: 'Add the photo link to turn on automatic scans',
     save: 'Save',

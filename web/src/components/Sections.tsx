@@ -155,7 +155,7 @@ export function Hero({ t }: { t: Dict }) {
   );
 }
 
-const STRIP_PLATFORMS = ['Amazon', 'Temu', 'AliExpress', 'eBay', 'Walmart', 'Etsy', 'Shein', 'Shopify', 'Cdiscount'];
+const STRIP_PLATFORMS = ['Amazon', 'eBay', 'Shopify', 'Etsy', 'Walmart', 'Cdiscount', 'AliExpress', 'Temu'];
 
 export function PlatformStrip({ t }: { t: Dict }) {
   return (

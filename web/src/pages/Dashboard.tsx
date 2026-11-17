@@ -10,6 +10,7 @@ import { useTitle } from '../lib/useTitle';
 import { addProduct, deleteProduct, getProductLimit, getScanInterval, getSubscription, isDuplicate, isImageUrl, isPlanLimit, listProducts, LIVE_STATUSES, requestScan, runScans, scanTooSoonUntil, setProductImage, type Product, type Subscription } from '../lib/db';
 import { BillingError, openPortal } from '../lib/billing';
 import { AccountError, deleteAccount } from '../lib/account';
+import { looksLikeLink, parseAmazonInput } from '../lib/amazon';
 
 const ASIN_RE = /^[A-Z0-9]{10}$/;
 const inputClass = 'mt-1.5 block w-full rounded-lg border border-neutral-300 bg-white px-3.5 py-2.5 text-base text-ink outline-none focus:border-ink focus:ring-2 focus:ring-ink/20 aria-[invalid=true]:border-red-500';
@@ -43,6 +44,7 @@ function Products({ supabase }: { supabase: SupabaseClient }) {
   const [marketplace, setMarketplace] = useState<Marketplace>(lang === 'fr' ? 'amazon.fr' : 'amazon.com');
   const [label, setLabel] = useState('');
   const [imageUrl, setImageUrl] = useState('');
+  const [linkNote, setLinkNote] = useState<string | null>(null);
   const [imageDrafts, setImageDrafts] = useState<Record<string, string>>({});
   const [scanInterval, setScanInterval] = useState(30);
   const [formError, setFormError] = useState<string | null>(null);
@@ -122,6 +124,25 @@ function Products({ supabase }: { supabase: SupabaseClient }) {
     }
   };
 
+  /** Accepts a bare ASIN or a pasted Amazon product link (fills ASIN and marketplace from it). */
+  const onAsinChange = (value: string) => {
+    setFormError(null);
+    setLinkNote(null);
+    if (!looksLikeLink(value)) { setAsin(value.toUpperCase().slice(0, 10)); return; }
+    const parsed = parseAmazonInput(value);
+    if (parsed.kind === 'asin') {
+      setAsin(parsed.asin);
+      const mp = parsed.marketplace;
+      if (mp && (MARKETPLACES as readonly string[]).includes(mp)) { setMarketplace(mp as Marketplace); setLinkNote(t.scanUi.linkRead(parsed.asin, mp)); }
+      else if (mp) setLinkNote(t.scanUi.linkOtherMarket(parsed.asin, mp));
+    } else if (parsed.kind === 'short') {
+      setAsin('');
+      setFormError(t.scanUi.shortLink);
+    } else {
+      setAsin(value);
+    }
+  };
+
   const submit = async (e: FormEvent) => {
     e.preventDefault();
     const cleanAsin = asin.trim().toUpperCase();
@@ -134,6 +155,7 @@ function Products({ supabase }: { supabase: SupabaseClient }) {
     try {
       await addProduct(supabase, { asin: cleanAsin, marketplace, label: label.trim() || null, image_url: cleanImage || null });
       setAsin('');
+      setLinkNote(null);
       setLabel('');
       setImageUrl('');
       await refresh();
@@ -206,9 +228,9 @@ function Products({ supabase }: { supabase: SupabaseClient }) {
           <div className="mt-4 grid gap-4 sm:grid-cols-[1fr_1fr_1.4fr_auto] sm:items-end">
             <div>
               <label htmlFor="p-asin" className="text-sm font-semibold">{t.app.asin}</label>
-              <input id="p-asin" type="text" autoCapitalize="characters" spellCheck={false} maxLength={10} placeholder="B09NNLSTGQ"
-                value={asin} onChange={e => setAsin(e.target.value.toUpperCase())}
-                aria-invalid={!!formError} aria-describedby={formError ? 'p-error' : undefined}
+              <input id="p-asin" type="text" autoCapitalize="characters" spellCheck={false} maxLength={2048} placeholder="B09NNLSTGQ"
+                value={asin} onChange={e => onAsinChange(e.target.value)}
+                aria-invalid={!!formError} aria-describedby={formError ? 'p-error' : linkNote ? 'p-link-note' : undefined}
                 className={`${inputClass} font-mono tracking-wider`} />
             </div>
             <div>
@@ -232,7 +254,9 @@ function Products({ supabase }: { supabase: SupabaseClient }) {
             <input id="p-image" type="url" inputMode="url" spellCheck={false} placeholder="https://m.media-amazon.com/images/I/…jpg"
               value={imageUrl} onChange={e => setImageUrl(e.target.value)} className={inputClass} />
             <p className="mt-1.5 text-xs text-neutral-500">{t.scanUi.imageHelp}</p>
+            <PhotoHelp />
           </div>
+          {linkNote && !formError && <p id="p-link-note" role="status" className="mt-3 flex items-center gap-1.5 text-sm text-neutral-700"><Icon name="check" className="h-4 w-4 shrink-0" />{linkNote}</p>}
           {formError && <p id="p-error" role="alert" className="mt-3 text-sm text-red-600">{formError}</p>}
           {(limitHit || atLimit) && (
             <p role={limitHit ? 'alert' : undefined} className="mt-3 flex flex-wrap items-center gap-x-2 text-sm text-neutral-600">
@@ -305,6 +329,7 @@ function Products({ supabase }: { supabase: SupabaseClient }) {
                             className="shrink-0 rounded-lg border border-neutral-300 px-3 py-1.5 text-sm font-medium hover:border-ink disabled:opacity-50">{t.scanUi.save}</button>
                         </form>
                       )}
+                      {!p.image_url && <PhotoHelp compact />}
                     </div>
                   </div>
                   <div className="flex flex-wrap gap-2 md:shrink-0">
@@ -333,6 +358,23 @@ function Products({ supabase }: { supabase: SupabaseClient }) {
 
       {products && <DeleteAccount supabase={supabase} />}
     </div>
+  );
+}
+
+/** Collapsible "how do I get the photo link" steps, shown wherever a photo link is asked for. */
+function PhotoHelp({ compact = false }: { compact?: boolean }) {
+  const { t } = useLang();
+  const s = t.scanUi;
+  return (
+    <details className={compact ? 'mt-1.5' : 'mt-2'}>
+      <summary className="inline-flex cursor-pointer list-none items-center gap-1 text-xs font-medium text-ink underline decoration-neutral-300 underline-offset-4 hover:decoration-ink">
+        <Icon name="info" className="h-3.5 w-3.5" />{s.helpTitle}
+      </summary>
+      <ol className="mt-2 max-w-xl list-decimal space-y-1.5 pl-5 text-xs leading-relaxed text-neutral-600">
+        {s.helpSteps.map(step => <li key={step}>{step}</li>)}
+      </ol>
+      <p className="mt-1.5 max-w-xl break-all pl-5 font-mono text-[11px] text-neutral-500">https://m.media-amazon.com/images/I/71Ab3xYzL._AC_SL1500_.jpg</p>
+    </details>
   );
 }
 
