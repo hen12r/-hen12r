@@ -30,3 +30,4 @@ poc/out/
 web/node_modules/
 web/dist/
 web/.env.local
+web/e2e/.out/

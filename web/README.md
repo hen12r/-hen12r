@@ -4,10 +4,11 @@ Vite + React 19 + TypeScript (strict) + Tailwind v4 + React Router. French and E
 
 | Route | Page |
 | --- | --- |
-| `/` | Landing page with the free-scan form (no account needed) |
+| `/` | Landing page; every call to action leads to account creation |
 | `/login` | Log in with an emailed link (no password), or Google once enabled |
-| `/app` | My products: add/remove ASINs, see scan status, request a scan |
-| `/app/scans/:id` | Scan report: copies found, by platform |
+| `/app` | My products: add by ASIN or pasted Amazon link, photo link (with help), scan status, request a scan, delete account |
+| `/app/scans/:id` | Scan report: copies by platform, takedown request per copy, CSV evidence |
+| `/pricing`, `/privacy`, `/legal` | Plans, privacy policy, legal notice (fill in `LEGAL` in `src/brand.ts`) |
 
 Account pages are code-split, so landing-page visitors never download supabase-js or the app. `vercel.json` rewrites every path to `index.html` so deep links work.
 
@@ -18,16 +19,16 @@ cp .env.example .env.local   # then fill in the publishable key
 npm install
 npm run dev                  # http://localhost:5173
 npm run typecheck
+npm test                     # unit tests (Amazon link parsing)
 npm run build
+npm run e2e                  # browser tests on the build, backend fully mocked
 ```
 
-## Free-scan requests (Supabase)
+`npm run e2e` serves `dist/` on port 4174 and runs every suite in `e2e/` (accounts, scans, payments, report and takedown, account deletion, home, product input, and a clipping check on 8 pages × 3 screen sizes × 2 languages). A suite fails if any check is `false` or the page throws. Screenshots go to `e2e/.out/`. GitHub Actions (`.github/workflows/ci.yml`) runs all of this, plus the scanner and edge-function unit tests, on every push.
 
-- Project `photosentry` (EU, Paris), table `public.scan_requests`.
-- Row-level security: visitors (`anon`) may **insert only**, and only the columns `email, asin, marketplace, locale, consent`. They can't read, change or delete any request, or set `status`.
-- CHECK constraints enforce a valid email, a 10-character ASIN, a known marketplace, `fr`/`en`, and `consent = true`, so calling the API directly can't bypass the form's validation.
-- Read requests in the Supabase dashboard (Table editor → `scan_requests`) and move `status` through `new → scanned → sent`.
-- The publishable key in `.env.local` is meant to be public; it only has the access above.
+## Legacy free-scan requests
+
+`public.scan_requests` holds requests from the old landing-page form, which has been removed. Visitors can no longer insert into it (migration `close_public_scan_request_form`); a user's rows are erased when they delete their account.
 
 ## Accounts (Supabase Auth)
 
@@ -73,6 +74,5 @@ Plans: **Trial** (free, 1 product), **Starter** €5/month (10 products), **Pro*
 
 ## Known limits (v0)
 
-- No rate limiting, only a honeypot field. If spam shows up, move the insert behind a server function with a captcha.
 - `CONTACT_EMAIL` in `src/brand.ts` is the founder's personal address for now; switch it to a dedicated product inbox.
 - The example report uses fictional brands and `.example` URLs on purpose.
