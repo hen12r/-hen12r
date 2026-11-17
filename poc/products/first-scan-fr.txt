@@ -1,0 +1,13 @@
+# Test products – first scan (amazon.fr, recorded 8 Nov 2026)
+# Format: ASIN | label | main image URL
+# Each line excludes only URLs containing its own ASIN.
+B09NNLSTGQ | Sunset Lamp (sunset lamp)              | https://m.media-amazon.com/images/I/71Y0uXvJz8L.jpg
+B0FHK5WNVZ | CORATED (sunset lamp)                  | https://m.media-amazon.com/images/I/61AYh7w7vGL.jpg
+B0CKWB2MY4 | Wessper (1 L motivational bottle)      | https://m.media-amazon.com/images/I/61uyeXrX4LL.jpg
+B0BHQS26W3 | 1 L motivational bottle                | https://m.media-amazon.com/images/I/81SyvTd1IML.jpg
+B0C2Z9H9KG | HOMCA (cervical pillow)                | https://m.media-amazon.com/images/I/71tEygJYrkL.jpg
+B0170MI3QI | ZenPur (cervical pillow)               | https://m.media-amazon.com/images/I/61tbLA8BL+L.jpg
+B07WQN3134 | SOULWIT (cable clips)                  | https://m.media-amazon.com/images/I/81rzWnJFjYL.jpg
+B0BTST23MR | Oududianzi (desk cable organizer)      | https://m.media-amazon.com/images/I/71ERnTZvYPL.jpg
+B08L5TT6ZM | Omasi (pet hair brush)                 | https://m.media-amazon.com/images/I/61URRwxCTSL.jpg
+B098P6164W | aumuca (cat brush)                     | https://m.media-amazon.com/images/I/71qfz1I1S+L.jpg

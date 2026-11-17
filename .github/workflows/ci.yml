@@ -1,0 +1,65 @@
+name: CI
+
+on:
+  push:
+    branches: [main, 'claude/**']
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      # Public values only. Every Supabase/Stripe call in the browser tests is mocked;
+      # the URL just fixes the session storage key the tests write to.
+      VITE_SUPABASE_URL: https://zgvftpdnqszkyyyognrv.supabase.co
+      VITE_SUPABASE_PUBLISHABLE_KEY: sb_publishable_ci_dummy
+      VITE_GOOGLE_AUTH: 'false'
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+
+      - name: Unit tests (scanner, billing, scan function)
+        run: |
+          node --test poc/test/*.test.mjs
+          node --test supabase/functions/billing/stripe.test.mjs supabase/functions/scan/scan.test.mjs
+
+      - name: Install web dependencies
+        working-directory: web
+        run: npm ci
+
+      - name: Typecheck, unit tests and build
+        working-directory: web
+        run: |
+          npm run typecheck
+          npm test
+          npm run build
+
+      - name: Install Chromium for Playwright
+        working-directory: web
+        run: npx playwright install --with-deps chromium
+
+      - name: Browser tests
+        working-directory: web
+        run: npm run e2e
+
+      - name: Upload screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-screenshots
+          path: web/e2e/.out/
+          if-no-files-found: ignore
+          retention-days: 7
