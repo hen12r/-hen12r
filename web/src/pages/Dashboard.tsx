@@ -225,13 +225,14 @@ function Products({ supabase }: { supabase: SupabaseClient }) {
       <Card className="p-5 sm:p-6">
         <form onSubmit={submit} noValidate>
           <h2 className="flex items-center gap-2 font-semibold"><Icon name="plus" className="h-4 w-4" />{t.app.addTitle}</h2>
-          <div className="mt-4 grid gap-4 sm:grid-cols-[1fr_1fr_1.4fr_auto] sm:items-end">
+          <div className="mt-4 grid gap-4 sm:grid-cols-[1fr_1fr_1.4fr_auto] sm:items-start">
             <div>
               <label htmlFor="p-asin" className="text-sm font-semibold">{t.app.asin}</label>
               <input id="p-asin" type="text" autoCapitalize="characters" spellCheck={false} maxLength={2048} placeholder="B09NNLSTGQ"
                 value={asin} onChange={e => onAsinChange(e.target.value)}
                 aria-invalid={!!formError} aria-describedby={formError ? 'p-error' : linkNote ? 'p-link-note' : undefined}
                 className={`${inputClass} font-mono tracking-wider`} />
+              {linkNote && !formError && <p id="p-link-note" role="status" className="mt-1.5 flex items-start gap-1 text-xs text-neutral-700"><Icon name="check" className="mt-px h-3.5 w-3.5 shrink-0" />{linkNote}</p>}
             </div>
             <div>
               <label htmlFor="p-market" className="text-sm font-semibold">{t.app.marketplace}</label>
@@ -245,7 +246,7 @@ function Products({ supabase }: { supabase: SupabaseClient }) {
                 value={label} onChange={e => setLabel(e.target.value)} className={inputClass} />
             </div>
             <button type="submit" disabled={adding || atLimit}
-              className="rounded-lg bg-ink px-5 py-2.5 font-semibold text-white hover:bg-neutral-800 disabled:opacity-60">
+              className="rounded-lg bg-ink sm:mt-[1.875rem] sm:h-[2.875rem] px-5 py-2.5 font-semibold text-white hover:bg-neutral-800 disabled:opacity-60">
               {adding ? t.app.adding : t.app.add}
             </button>
           </div>
@@ -256,7 +257,6 @@ function Products({ supabase }: { supabase: SupabaseClient }) {
             <p className="mt-1.5 text-xs text-neutral-500">{t.scanUi.imageHelp}</p>
             <PhotoHelp />
           </div>
-          {linkNote && !formError && <p id="p-link-note" role="status" className="mt-3 flex items-center gap-1.5 text-sm text-neutral-700"><Icon name="check" className="h-4 w-4 shrink-0" />{linkNote}</p>}
           {formError && <p id="p-error" role="alert" className="mt-3 text-sm text-red-600">{formError}</p>}
           {(limitHit || atLimit) && (
             <p role={limitHit ? 'alert' : undefined} className="mt-3 flex flex-wrap items-center gap-x-2 text-sm text-neutral-600">
