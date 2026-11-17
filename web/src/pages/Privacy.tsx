@@ -31,7 +31,7 @@ export default function Privacy() {
           ))}
           <p className="rounded-xl bg-neutral-50 p-5 text-neutral-700 border border-neutral-200">
             {pp.contactLead}{' '}
-            <a href={`mailto:${CONTACT_EMAIL}`} className="font-semibold text-ink underline underline-offset-2">{CONTACT_EMAIL}</a>
+            <a href={`mailto:${CONTACT_EMAIL}`} className="break-all font-semibold text-ink underline underline-offset-2">{CONTACT_EMAIL}</a>
           </p>
         </div>
       </main>

@@ -15,7 +15,7 @@ export default function Legal() {
     [lp.address, LEGAL.address ?? pending],
     [lp.registration, LEGAL.registration ?? pending],
     [lp.director, LEGAL.director ?? LEGAL.publisher ?? pending],
-    [lp.contact, <a href={`mailto:${CONTACT_EMAIL}`} className="font-semibold text-ink underline underline-offset-2">{CONTACT_EMAIL}</a>],
+    [lp.contact, <a href={`mailto:${CONTACT_EMAIL}`} className="break-all font-semibold text-ink underline underline-offset-2">{CONTACT_EMAIL}</a>],
   ];
   return (
     <>

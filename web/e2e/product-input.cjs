@@ -46,7 +46,9 @@ async function setup(browser, opts, lang = 'fr-FR') {
   res.marketplaceSwitched = (await p.inputValue('#p-market')) === 'amazon.co.uk';
   res.linkNote = (await p.locator('#p-link-note').textContent()) === 'Lien reconnu : ASIN B09NNLSTGQ sur amazon.co.uk.';
   await p.click('form button[type=submit]');
-  await p.getByText('B09NNLSTGQ').first().waitFor();
+  // Wait for the new product row (the confirmation note also contains the ASIN, so plain text isn't enough).
+  await p.locator('li', { hasText: 'B09NNLSTGQ' }).waitFor();
+  await p.locator('#p-link-note').waitFor({ state: 'detached', timeout: 5000 }).catch(() => {});
   res.addedWithUkMarketplace = calls[0]?.asin === 'B09NNLSTGQ' && calls[0]?.marketplace === 'amazon.co.uk';
   res.noteClearedAfterAdd = (await p.locator('#p-link-note').count()) === 0;
 
