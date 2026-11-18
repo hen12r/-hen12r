@@ -13,9 +13,43 @@
 create extension if not exists pgcrypto with schema extensions;
 
 -- ---------------------------------------------------------------------
+-- Pre-flight guards: abort (and roll back) instead of building on a schema
+-- we do not understand. Nothing is changed if any of these fail.
+-- ---------------------------------------------------------------------
+do $$
+declare
+  t text;
+  expected_col text;
+begin
+  -- Tables this migration creates must either not exist, or already be ours.
+  foreach t in array array['categories', 'voice_sessions', 'notes', 'tasks', 'reminders', 'events', 'subscriptions', 'usage_counters'] loop
+    if to_regclass('public.' || t) is not null then
+      expected_col := case t when 'subscriptions' then 'plan' when 'usage_counters' then 'notes_created' else 'user_id' end;
+      if not exists (select 1 from information_schema.columns
+                     where table_schema = 'public' and table_name = t and column_name = expected_col) then
+        raise exception 'MVL pre-flight: table public.% already exists with a different structure (no column %). Review it before migrating.', t, expected_col;
+      end if;
+    end if;
+  end loop;
+
+  if to_regclass('public.profiles') is not null then
+    -- ON CONFLICT (id) below needs a unique index on profiles.id.
+    if not exists (
+      select 1 from pg_index i join pg_attribute a on a.attrelid = i.indrelid and a.attnum = any(i.indkey)
+      where i.indrelid = 'public.profiles'::regclass and i.indisunique and i.indnkeyatts = 1 and a.attname = 'id'
+    ) then
+      raise exception 'MVL pre-flight: public.profiles.id has no primary key / unique index.';
+    end if;
+    if (select data_type from information_schema.columns where table_schema = 'public' and table_name = 'profiles' and column_name = 'id') <> 'uuid' then
+      raise exception 'MVL pre-flight: public.profiles.id is not uuid.';
+    end if;
+  end if;
+end $$;
+
+-- ---------------------------------------------------------------------
 -- Helpers
 -- ---------------------------------------------------------------------
-create or replace function public.set_updated_at()
+create or replace function public.mvl_set_updated_at()
 returns trigger language plpgsql
 set search_path = ''
 as $$
@@ -54,9 +88,22 @@ do $$ begin
   alter table public.profiles add constraint profiles_timezone_len check (char_length(timezone) between 1 and 64);
 exception when duplicate_object then null; end $$;
 
-drop trigger if exists profiles_updated_at on public.profiles;
-create trigger profiles_updated_at before update on public.profiles
-  for each row execute function public.set_updated_at();
+-- Make account deletion remove the profile too. NOT VALID: enforced for new/changed
+-- rows only, existing rows are not checked or modified.
+do $$
+begin
+  if not exists (
+    select 1 from pg_constraint
+    where conrelid = 'public.profiles'::regclass and contype = 'f' and confrelid = 'auth.users'::regclass
+  ) then
+    alter table public.profiles add constraint profiles_id_auth_users_fkey
+      foreign key (id) references auth.users (id) on delete cascade not valid;
+  end if;
+end $$;
+
+drop trigger if exists mvl_profiles_updated_at on public.profiles;
+create trigger mvl_profiles_updated_at before update on public.profiles
+  for each row execute function public.mvl_set_updated_at();
 
 -- ---------------------------------------------------------------------
 -- Categories
@@ -210,7 +257,7 @@ declare t text;
 begin
   foreach t in array array['notes', 'tasks', 'reminders', 'events'] loop
     execute format('drop trigger if exists %1$s_updated_at on public.%1$s', t);
-    execute format('create trigger %1$s_updated_at before update on public.%1$s for each row execute function public.set_updated_at()', t);
+    execute format('create trigger %1$s_updated_at before update on public.%1$s for each row execute function public.mvl_set_updated_at()', t);
   end loop;
 end $$;
 
@@ -230,7 +277,7 @@ create table if not exists public.subscriptions (
 );
 drop trigger if exists subscriptions_updated_at on public.subscriptions;
 create trigger subscriptions_updated_at before update on public.subscriptions
-  for each row execute function public.set_updated_at();
+  for each row execute function public.mvl_set_updated_at();
 
 -- Monotonic counters: deleting a note does NOT give quota back.
 create table if not exists public.usage_counters (
@@ -298,7 +345,7 @@ create trigger notes_enforce_quota before insert on public.notes
 -- ---------------------------------------------------------------------
 -- New-user bootstrap: profile, default categories, free plan
 -- ---------------------------------------------------------------------
-create or replace function public.handle_new_user()
+create or replace function public.mvl_handle_new_user()
 returns trigger language plpgsql security definer
 set search_path = ''
 as $$
@@ -316,9 +363,12 @@ begin
   return new;
 end;
 $$;
-drop trigger if exists on_auth_user_created on auth.users;
-create trigger on_auth_user_created after insert on auth.users
-  for each row execute function public.handle_new_user();
+-- Named to sort AFTER the common template trigger "on_auth_user_created": Postgres fires
+-- same-event triggers alphabetically, so a legacy trigger that inserts the profile without
+-- ON CONFLICT runs first and this one (ON CONFLICT DO NOTHING) cannot make sign-up fail.
+drop trigger if exists on_auth_user_created_zz_mvl on auth.users;
+create trigger on_auth_user_created_zz_mvl after insert on auth.users
+  for each row execute function public.mvl_handle_new_user();
 
 -- Backfill for users that existed before this migration (e.g. FitPick accounts).
 insert into public.profiles (id) select id from auth.users on conflict (id) do nothing;
@@ -428,4 +478,4 @@ revoke execute on function public.search_memory(text, integer) from public, anon
 grant execute on function public.search_memory(text, integer) to authenticated;
 revoke execute on function public.effective_plan(uuid) from public, anon, authenticated;
 revoke execute on function public.enforce_note_quota() from public, anon, authenticated;
-revoke execute on function public.handle_new_user() from public, anon, authenticated;
+revoke execute on function public.mvl_handle_new_user() from public, anon, authenticated;
