@@ -6,6 +6,7 @@
 import { createClient } from 'npm:@supabase/supabase-js@2.48.1';
 import { buildExtractionPrompt, EXTRACTION_RESPONSE_SCHEMA, validateExtraction } from '../_shared/extraction.ts';
 import { corsHeaders, fail, json } from '../_shared/http.ts';
+import { buildTranscriptionPrompt, LANGUAGE_NAMES, TRANSCRIPT_SCHEMA } from '../_shared/transcription.ts';
 
 const GEMINI_API_KEY = Deno.env.get('GEMINI_API_KEY');
 const GEMINI_MODEL = Deno.env.get('GEMINI_MODEL') ?? 'gemini-2.5-flash';
@@ -13,7 +14,6 @@ const MAX_AUDIO_BYTES = 12 * 1024 * 1024; // ~10+ minutes of opus audio
 const MAX_TEXT_CHARS = 10_000;
 const HOURLY_LIMIT = Number(Deno.env.get('VOICE_HOURLY_LIMIT') ?? '30');
 const ALLOWED_AUDIO = ['audio/webm', 'audio/ogg', 'audio/mp4', 'audio/mpeg', 'audio/wav', 'audio/x-wav', 'audio/aac'];
-const LANGUAGE_NAMES: Record<string, string> = { en: 'English', fr: 'French', rw: 'Kinyarwanda' };
 
 class UpstreamError extends Error {
   constructor(public status: number, message: string) { super(message); }
@@ -43,24 +43,14 @@ async function gemini(parts: unknown[], schema: unknown): Promise<unknown> {
   }
 }
 
-const TRANSCRIPT_SCHEMA = {
-  type: 'OBJECT',
-  properties: {
-    transcript: { type: 'STRING' },
-    language: { type: 'STRING', enum: ['en', 'fr', 'rw', 'other', 'none'] },
-  },
-  required: ['transcript', 'language'],
-};
-
 async function transcribe(audio: Uint8Array, mimeType: string, hint: string) {
   let b64 = '';
   const chunk = 0x8000;
   for (let i = 0; i < audio.length; i += chunk) b64 += String.fromCharCode(...audio.subarray(i, i + chunk));
   b64 = btoa(b64);
-  const hintText = LANGUAGE_NAMES[hint] ? `The speaker selected ${LANGUAGE_NAMES[hint]} as their language.` : 'The language may be English, French or Kinyarwanda.';
   const out = await gemini([
     { inline_data: { mime_type: mimeType, data: b64 } },
-    { text: `Transcribe this recording verbatim in the language that was spoken. Do not translate, summarise or add anything. ${hintText} If there is no intelligible speech, return an empty transcript and language "none". language must be the ISO code of the main spoken language: en, fr, rw, or "other".` },
+    { text: buildTranscriptionPrompt(hint) },
   ], TRANSCRIPT_SCHEMA) as { transcript?: unknown; language?: unknown };
   return {
     transcript: typeof out.transcript === 'string' ? out.transcript.trim().slice(0, MAX_TEXT_CHARS) : '',

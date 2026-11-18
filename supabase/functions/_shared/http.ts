@@ -1,10 +1,12 @@
 // Deno-only helpers for Edge Functions.
-const ALLOWED_ORIGINS = (Deno.env.get('ALLOWED_ORIGINS') ?? 'http://localhost:3000')
-  .split(',').map((s) => s.trim()).filter(Boolean);
+import { isOriginAllowed, parseAllowedOrigins } from './cors.ts';
+
+const ALLOWED_ORIGINS = parseAllowedOrigins(Deno.env.get('ALLOWED_ORIGINS'));
 
 export function corsHeaders(req: Request): Record<string, string> {
-  const origin = req.headers.get('origin') ?? '';
-  const allow = ALLOWED_ORIGINS.includes('*') || ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0];
+  const origin = req.headers.get('origin');
+  // Disallowed origins get the first configured origin, so the browser blocks the response.
+  const allow = isOriginAllowed(origin, ALLOWED_ORIGINS) ? origin! : ALLOWED_ORIGINS[0];
   return {
     'Access-Control-Allow-Origin': allow,
     'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
