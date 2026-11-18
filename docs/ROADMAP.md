@@ -9,6 +9,9 @@ Legend: ✅ implemented **and** tested · 🟡 implemented, not yet verified aga
 | Remove Gemini key from browser bundle | ✅ | bundle grep: no key/endpoint strings |
 | DB schema: profiles, categories, voice_sessions, notes, tasks, reminders, events, subscriptions, usage_counters | ✅ | migration applied twice (idempotent) to local Postgres 16 |
 | RLS owner-only on every user table; client cannot self-upgrade plan | ✅ | 34 assertions in `supabase/tests/rls_test.sql` |
+| Migration safe on a FitPick-style project (no data loss, no clobbered functions, sign-up still works) | ✅ | 15 checks in `legacy_upgrade_test.sql` on a **simulated** FitPick schema; re-check against the real schema via pre-flight output |
+| Migration aborts atomically on an unknown conflicting table | ✅ | guard scenario in `npm run test:db` |
+| Read-only pre-flight inspection script | ✅ | runs on simulated schema; write attempts rejected in read-only transaction |
 | Free-plan note quota enforced server-side, not refundable by deleting | ✅ | DB tests |
 | New-user bootstrap (profile, 7 default categories, free plan) | ✅ | DB tests |
 | Keyword memory search (RLS-safe RPC) | ✅ | DB tests (incl. no cross-user leakage) |
@@ -21,11 +24,18 @@ Legend: ✅ implemented **and** tested · 🟡 implemented, not yet verified aga
 | Pages: Landing, Dashboard, Capture/Review, Notes, Tasks, Schedule, Memory, Settings | 🟡 | render-tested with mocked data; CRUD needs a live project |
 | Recorder: duration, cancel, max length, permission-denied handling | 🟡 | denied-permission path tested in Chromium; real recording needs a device mic |
 | en/fr interface | ✅ | all keys typed and present in both |
+| Vercel config: SPA rewrite, pinned build/output/Node, security headers + CSP | ✅ | `vite preview` serves the same headers; Chromium: 5 routes render, 0 CSP violations |
+| Build refuses secret-looking / non-allow-listed `VITE_*` variables | ✅ | 5 unit tests + builds with `VITE_GEMINI_API_KEY` and `sb_secret_` both refused |
+| `npm run check:env` (masked env validation + Supabase probes) | 🟡 | written; probes need a live project |
+| CORS allow-list with Vercel preview patterns | ✅ | 5 unit tests; `deno check` passes |
+| Kinyarwanda test kit (plan, prompts, sheet, transcribe + WER/CER scorer) | ✅ tooling / ⬜ results | 8 metric/CSV tests; dry-run and scoring verified on synthetic data. **No Kinyarwanda results exist yet** |
 
-### Blocked on owner action
-1. Restore (or recreate) the Supabase project and approve applying the migration.
-2. Set `GEMINI_API_KEY` as a Supabase secret, and **rotate the old key** if FitPick was ever deployed.
-3. Record 30+ real Kinyarwanda clips (native speakers) to measure transcription quality.
+### Blocked on owner action (see docs/DEPLOYMENT.md)
+1. Decide: own repo for My Voice Life (recommended) or keep sharing `hen12r/-hen12r` with Photosentry.
+2. Create the `my-voice-life` Vercel project (Root Directory `.`), never reusing Photosentry's env vars.
+3. Create a fresh Supabase project (recommended) or restore the paused one; run the read-only pre-flight; approve the migration.
+4. Set `GEMINI_API_KEY` + `ALLOWED_ORIGINS` as Supabase Function Secrets; **rotate the old key** if FitPick was ever deployed.
+5. Record Kinyarwanda clips with written consent (docs/kinyarwanda/TEST_PLAN.md).
 
 ## Milestone 2 — Verify end-to-end on the real project
 ⬜ Apply migration, deploy functions, run the manual test plan below, fix what breaks · ⬜ Kinyarwanda WER evaluation and provider decision · ⬜ Translate validator warnings

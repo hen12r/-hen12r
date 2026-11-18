@@ -51,7 +51,7 @@ Cross-user references are impossible: child tables use composite FKs `(category_
 | OpenAI Whisper / gpt-4o-transcribe | strong | strong | not in Whisper's documented language list (verify) | |
 | ElevenLabs Scribe | strong | strong | check their current list | |
 
-Decision: start with **Gemini** for en/fr (lowest integration cost, existing key). Treat Kinyarwanda as **experimental** until it has been tested on real recordings from native speakers (target: WER against hand transcripts on 30+ clips). If Gemini is poor on rw, route `language_hint = rw` to Google Cloud STT `rw-RW` behind the same `transcribe()` interface. Nothing in the UI claims rw works beyond "experimental".
+Evaluation method and tooling: [kinyarwanda/TEST_PLAN.md](kinyarwanda/TEST_PLAN.md). Decision: start with **Gemini** for en/fr (lowest integration cost, existing key). Treat Kinyarwanda as **experimental** until it has been tested on real recordings from native speakers (target: WER against hand transcripts on 30+ clips). If Gemini is poor on rw, route `language_hint = rw` to Google Cloud STT `rw-RW` behind the same `transcribe()` interface. Nothing in the UI claims rw works beyond "experimental".
 
 ## Known limitations (by design for this milestone)
 - Reminder **delivery** (push/email) is not implemented; reminders are stored and shown in the app. Planned: `pg_cron` → Edge Function → Web Push (VAPID), using `reminders_due_idx`.

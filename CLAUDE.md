@@ -13,6 +13,8 @@ Tagline: *Your voice. Your ideas. Your organised life.*
 - `npm run typecheck` / `npm test` (Vitest) / `npm run build`
 - `npm run test:db` — applies all migrations to a throwaway local Postgres with a Supabase shim and runs `supabase/tests/rls_test.sql`. Needs `PGHOST/PGPORT/PGUSER` pointing at a **local** Postgres. Never point it at production.
 - `npx deno@2.1.4 check supabase/functions/*/index.ts` — type-check Edge Functions.
+- `npm run check:env [-- --origin <url>]` — validates `.env.local` and probes Supabase (auth health, anon access blocked, function + CORS). Prints masked values only.
+- `node scripts/eval/transcribe.mjs` / `score.mjs` — Kinyarwanda/STT evaluation (see `docs/kinyarwanda/TEST_PLAN.md`); data lives in git-ignored `eval-data/`.
 
 ## Non-negotiable rules
 1. **No secrets in the browser.** Only `VITE_SUPABASE_URL` and `VITE_SUPABASE_PUBLISHABLE_KEY` may be `VITE_*`. AI keys and the service-role key live only in Edge Function secrets. Never commit `.env*` (except `.env.example`).
@@ -24,6 +26,8 @@ Tagline: *Your voice. Your ideas. Your organised life.*
 7. **No fake features.** No decorative buttons, no fake AI output, no claims of support that are untested (Kinyarwanda is "experimental" until tested with real speakers).
 8. Migrations are additive/idempotent SQL files in `supabase/migrations/`. Applying to the real project requires the owner's explicit approval.
 9. Do not merge to `main` or deploy without the owner's approval.
+10. **This repo also hosts Photosentry** (branch `claude/amazing-tesla-jorf1p`, `web/`, Vercel project `photosentry`, Supabase project `photosentry`). Never modify those branches, that Vercel project or that Supabase project from My Voice Life work.
+11. New SQL objects get collision-proof names (`mvl_` prefix or similar) — never `create or replace` a function/trigger name a legacy schema might already use.
 
 ## Layout
 ```
@@ -35,11 +39,14 @@ src/
   voice/useRecorder.ts    MediaRecorder hook (in-memory only)
 supabase/
   migrations/             versioned SQL
-  functions/_shared/      extraction.ts (pure, shared with client & tests), http.ts (Deno CORS/json)
+  functions/_shared/      extraction.ts, transcription.ts, cors.ts (pure, shared & tested), http.ts (Deno-only)
   functions/process-voice transcription + extraction (Gemini)
   functions/delete-account
   tests/                  shim + RLS test suite
-docs/                     ARCHITECTURE, PRODUCT (competitive analysis), ROADMAP (status), SETUP
+  preflight/              read-only inspection SQL to run before approving migrations
+docs/                     ARCHITECTURE, DEPLOYMENT, MIGRATION_REVIEW, PRODUCT, ROADMAP, SETUP, kinyarwanda/ (test plan, prompts, sheet)
+scripts/                  test-db.sh, check-env.mjs, env-guard.mjs (build secret guard), eval/ (WER/CER tooling)
+vercel.json               build settings, SPA rewrite, security headers (CSP)
 ```
 
 ## Conventions
