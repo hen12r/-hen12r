@@ -1,0 +1,19 @@
+prompt_id,category,length,english,french,kinyarwanda_draft_needs_native_review
+P01,everyday,short,"Hello, how are you?","Bonjour, comment ça va ?","Muraho, amakuru yawe?"
+P02,everyday,short,I am going home.,Je rentre à la maison.,Ndatashye.
+P03,everyday,short,I want to buy a notebook.,Je veux acheter un cahier.,Ndashaka kugura ikaye.
+P04,everyday,short,Tomorrow I will go to school.,Demain j'irai à l'école.,Ejo nzajya ku ishuri.
+P05,task,short,I must prepare my CV.,Je dois préparer mon CV.,Ngomba gutegura CV yanjye.
+P06,task,medium,I need to call my teacher and send the homework.,Je dois appeler mon professeur et envoyer les devoirs.,Ngomba guhamagara mwarimu no kohereza umukoro.
+P07,task,long,"Tomorrow I need to call my school, prepare my CV, buy a notebook and practise piano.","Demain je dois appeler mon école, préparer mon CV, acheter un cahier et pratiquer le piano.","Ejo ngomba guhamagara ishuri, gutegura CV yanjye, kugura ikaye no kwitoza piano."
+P08,reminder,medium,Remind me to call mum tomorrow at nine in the morning.,Rappelle-moi d'appeler maman demain à neuf heures du matin.,Unyibutse guhamagara mama ejo saa tatu za mu gitondo.
+P09,reminder,medium,Remind me on Friday to pay the rent.,Rappelle-moi vendredi de payer le loyer.,Ku wa gatanu unyibutse kwishyura ubukode.
+P10,reminder,short,Remind me later to drink water.,Rappelle-moi plus tard de boire de l'eau.,Unyibutse nyuma kunywa amazi.
+P11,event,medium,On Friday I have a maths exam at two in the afternoon.,Vendredi j'ai un examen de maths à quatorze heures.,Ku wa gatanu mfite ikizamini cy'imibare saa munani z'amanywa.
+P12,event,long,"Next Monday there is a family meeting at my uncle's house, I must bring food and call my cousins before.","Lundi prochain il y a une réunion de famille chez mon oncle, je dois apporter de la nourriture et appeler mes cousins avant.","Ku wa mbere utaha hari inama y'umuryango kwa data wacu, ngomba kuzana ibiryo no guhamagara babyara banjye mbere."
+P13,note,long,"My idea is to open a small shop selling phone chargers near the bus station, because many travellers need them.","Mon idée est d'ouvrir une petite boutique de chargeurs de téléphone près de la gare routière, car beaucoup de voyageurs en ont besoin.","Igitekerezo cyanjye ni ugufungura iduka rito ricuruza chargeurs za telefoni hafi ya gare, kuko abagenzi benshi bazikenera."
+P14,personal_info,short,My sister's birthday is on the twelfth of March.,L'anniversaire de ma sœur est le douze mars.,Isabukuru y'amavuko ya mushiki wanjye ni ku itariki ya cumi n'ebyiri Werurwe.
+P15,code_switching,medium,(mixed) Tomorrow I must call the school then go to the meeting at two.,(mélange) Demain je dois appeler l'école puis aller à la réunion à deux heures.,"Ejo ngomba guhamagara école, hanyuma nkajya kuri meeting saa munani."
+P16,code_switching,medium,(mixed) Remind me to send the report to my boss before Friday.,(mélange) Rappelle-moi d'envoyer le rapport à mon chef avant vendredi.,"Unyibutse kohereza rapport kwa boss wanjye mbere ya vendredi."
+P17,numbers_names,medium,Call Jean-Paul on 0788 123 456 about the 25000 franc payment.,Appelle Jean-Paul au 0788 123 456 pour le paiement de 25000 francs.,"Hamagara Jean-Paul kuri 0788 123 456 ku bijyanye no kwishyura amafaranga ibihumbi makumyabiri na bitanu."
+P18,free_speech,long,(free) Describe your plans for this week in your own words for about 30 seconds.,(libre) Décrivez vos projets de la semaine avec vos propres mots pendant environ 30 secondes.,(speaker's own words — no script) Vuga gahunda zawe z'iki cyumweru mu masegonda nka 30.

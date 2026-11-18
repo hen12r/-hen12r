@@ -1,0 +1,1 @@
+recording_id,prompt_id,category,speaker_id,spoken_language,speed,condition,device,audio_file,duration_s,consent_ref,expected_transcription,actual_transcription,detected_language,provider_model,wer,cer,accuracy_assessment,identified_errors,extraction_correct,notes
