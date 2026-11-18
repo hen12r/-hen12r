@@ -1,20 +1,23 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
-</div>
+# My Voice Life
 
-# Run and deploy your AI Studio app
+**Your voice. Your ideas. Your organised life.**
 
-This contains everything you need to run your app locally.
+Speak once. My Voice Life turns what you said into separate tasks, reminders, events and notes. You review every item before it's saved, then find any of it again in your personal memory.
 
-View your app in AI Studio: https://ai.studio/apps/drive/1cM603AUEWkHC1gWemfEqjuluGVlcsFNL
+- Voice or typed capture → AI proposals → you confirm → saved
+- Never invents dates. Ambiguous ones must be chosen by you
+- Private by design: Row Level Security on every table, audio never stored
+- English and French interface; Kinyarwanda speech is experimental
 
-## Run Locally
+**Status:** early development. See [docs/ROADMAP.md](docs/ROADMAP.md) for what is done and verified.
 
-**Prerequisites:**  Node.js
+## Quick start
+```bash
+npm install
+cp .env.example .env.local   # add your Supabase URL + publishable key
+npm run dev
+```
+Full setup (database, Edge Functions, secrets): [docs/SETUP.md](docs/SETUP.md) · Architecture: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) · Strategy: [docs/PRODUCT.md](docs/PRODUCT.md)
 
-
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+## Tests
+`npm test` · `npm run typecheck` · `npm run test:db` (local Postgres only)
