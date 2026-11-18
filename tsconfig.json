@@ -17,5 +17,5 @@
     "noFallthroughCasesInSwitch": true,
     "types": ["vite/client", "vitest/globals"]
   },
-  "include": ["src", "supabase/functions/_shared/extraction.ts", "supabase/functions/_shared/extraction.test.ts", "vite.config.ts"]
+  "include": ["src", "supabase/functions/_shared/extraction.ts", "supabase/functions/_shared/extraction.test.ts", "supabase/functions/_shared/cors.ts", "supabase/functions/_shared/cors.test.ts", "vite.config.ts"]
 }
