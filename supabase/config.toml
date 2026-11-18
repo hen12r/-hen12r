@@ -1,0 +1,8 @@
+# Supabase CLI config (used by `supabase functions deploy` / `supabase start`).
+project_id = "my-voice-life"
+
+[functions.process-voice]
+verify_jwt = true
+
+[functions.delete-account]
+verify_jwt = true
